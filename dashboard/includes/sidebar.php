@@ -32,32 +32,6 @@ if ($current_dir !== 'dashboard') {
 // Usar la variable $base_path si está definida, sino usar la calculada
 $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
 
-// Incluir conexión para obtener estadísticas en tiempo real
-try {
-    if (!isset($pdo)) {
-        require_once $final_base_path . '../config/connect.php';
-    }
-    
-    // Usar las estadísticas globales si están disponibles
-    if (isset($GLOBALS['total_usuarios'])) {
-        $total_usuarios = $GLOBALS['total_usuarios'];
-        $total_categorias = $GLOBALS['total_categorias'];
-        $total_metodos = $GLOBALS['total_metodos'];
-    } else {
-        // Obtener estadísticas actualizadas
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM usuarios WHERE activo = 1");
-        $total_usuarios = $stmt->fetch()['total'] ?? 0;
-        
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM categorias WHERE activo = 1");
-        $total_categorias = $stmt->fetch()['total'] ?? 0;
-        
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM metodos_pago WHERE activo = 1");
-        $total_metodos = $stmt->fetch()['total'] ?? 0;
-    }
-    
-} catch (Exception $e) {
-    $total_usuarios = $total_categorias = $total_metodos = 0;
-}
 ?>
 
 <!-- Navbar para móvil -->
@@ -118,21 +92,21 @@ try {
                     <a class="nav-link text-light <?php echo isActive('index', 'usuarios'); ?>" href="<?php echo $final_base_path; ?>usuarios/">
                         <i class="fas fa-users me-2"></i>
                         Gestión de Usuarios
-                        <span class="badge bg-info ms-auto"><?php echo $total_usuarios; ?></span>
+                        <span class="badge bg-info ms-auto"></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-light <?php echo isActive('index', 'categorias'); ?>" href="<?php echo $final_base_path; ?>categorias/">
                         <i class="fas fa-tags me-2"></i>
                         Gestión de Categorías
-                        <span class="badge bg-success ms-auto"><?php echo $total_categorias; ?></span>
+                        <span class="badge bg-success ms-auto"></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-light <?php echo isActive('index', 'metodos-pago'); ?>" href="<?php echo $final_base_path; ?>metodos-pago/">
                         <i class="fas fa-credit-card me-2"></i>
                         Métodos de Pago
-                        <span class="badge bg-warning ms-auto"><?php echo $total_metodos; ?></span>
+                        <span class="badge bg-warning ms-auto"></span>
                     </a>
                 </li>
                 

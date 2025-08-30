@@ -19,8 +19,17 @@ if ($current_dir !== 'dashboard') {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery (requerido para DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <!-- JS personalizado -->
     <script src="<?php echo $base_path; ?>../assets/js/main.js"></script>
+    
+    <!-- Scripts personalizados de la página -->
+    <?php if (isset($custom_scripts) && !empty($custom_scripts)): ?>
+        <?php echo $custom_scripts; ?>
+    <?php endif; ?>
     
     <?php if (isset($additional_scripts) && !empty($additional_scripts)): ?>
         <?php echo $additional_scripts; ?>
