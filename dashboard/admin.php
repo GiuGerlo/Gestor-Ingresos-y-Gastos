@@ -64,123 +64,36 @@ try {
     $total_usuarios = $usuarios_mes = $total_categorias = $total_metodos = $total_transacciones = 0;
     $usuarios_activos = [];
 }
-?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Gestor de Finanzas</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- CSS personalizado -->
-    <link href="../assets/css/style.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <!-- Navbar para móvil -->
-    <nav class="navbar navbar-expand-md navbar-dark bg-primary d-md-none">
-        <div class="container-fluid">
-            <span class="navbar-brand">👑 Panel Admin</span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
+// Variables para el header dinámico
+$header_buttons = '<button type="button" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-calendar me-1"></i>
+    ' . date('d/m/Y H:i') . '
+</button>';
+
+// Variables globales necesarias para estadísticas del sidebar
+$GLOBALS['total_usuarios'] = $total_usuarios;
+$GLOBALS['total_categorias'] = $total_categorias;
+$GLOBALS['total_metodos'] = $total_metodos;
+
+// Incluir header
+include 'includes/header.php';
+?>
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
-                <div class="sidebar-sticky">
-                    <div class="text-center mb-4 pt-3">
-                        <h5 class="text-white">👑 Panel Admin</h5>
-                        <small class="text-light">
-                            <?php echo htmlspecialchars($user_name); ?>
-                            <span class="badge bg-warning text-dark ms-1">
-                                <i class="fas fa-crown me-1"></i>SuperAdmin
-                            </span>
-                        </small>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link text-white active" href="admin.php">
-                                <i class="fas fa-tachometer-alt me-2"></i>
-                                Panel Admin
-                            </a>
-                        </li>
-                        
-                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
-                        <li class="nav-item">
-                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-light">
-                                <span>Gestión del Sistema</span>
-                            </h6>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="usuarios/">
-                                <i class="fas fa-users me-2"></i>
-                                Gestión de Usuarios
-                                <span class="badge bg-info ms-auto"><?php echo $total_usuarios; ?></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="categorias/">
-                                <i class="fas fa-tags me-2"></i>
-                                Gestión de Categorías
-                                <span class="badge bg-success ms-auto"><?php echo $total_categorias; ?></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="metodos-pago/">
-                                <i class="fas fa-credit-card me-2"></i>
-                                Métodos de Pago
-                                <span class="badge bg-warning ms-auto"><?php echo $total_metodos; ?></span>
-                            </a>
-                        </li>
-                        
-                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
-                        <li class="nav-item">
-                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-light">
-                                <span>Vista de Usuario</span>
-                            </h6>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="index.php">
-                                <i class="fas fa-user me-2"></i>
-                                Vista Usuario Normal
-                            </a>
-                        </li>
-                        
-                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="../controllers/logout.php">
-                                <i class="fas fa-sign-out-alt me-2"></i>
-                                Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <!-- Sidebar dinámico -->
+            <?php include 'includes/sidebar.php'; ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-3">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="fas fa-crown text-warning me-2"></i>
                         Panel de Administración
                     </h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-calendar me-1"></i>
-                                <?php echo date('d/m/Y H:i'); ?>
-                            </button>
+                            <?php echo $header_buttons; ?>
                         </div>
                     </div>
                 </div>
@@ -406,11 +319,7 @@ try {
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- JS personalizado -->
-    <script src="../assets/js/main.js"></script>
-    
+    <!-- Estilos adicionales específicos de admin -->
     <style>
         .hover-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -443,5 +352,5 @@ try {
             font-size: 0.9rem;
         }
     </style>
-</body>
-</html>
+
+<?php include 'includes/footer.php'; ?>
