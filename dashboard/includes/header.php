@@ -80,6 +80,9 @@ $browser_title = $page_title . ' - Gestor de Finanzas';
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Variables CSS dinámicas -->
     <style>
         :root {

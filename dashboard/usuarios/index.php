@@ -177,67 +177,14 @@ include '../includes/header.php';
                     </div>
                 </div>
 
-                <!-- Modal para agregar usuario -->
-                <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-success text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-user-plus me-2"></i>
-                                    Nuevo Usuario
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p class="text-muted">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Formulario para crear nuevos usuarios se implementará aquí.
-                                </p>
-                                <form id="addUserForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Nombre Completo</label>
-                                                <input type="text" class="form-control" placeholder="Nombre del usuario">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Email</label>
-                                                <input type="email" class="form-control" placeholder="email@ejemplo.com">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Contraseña</label>
-                                                <input type="password" class="form-control" placeholder="Contraseña segura">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Rol</label>
-                                                <select class="form-select">
-                                                    <option value="usuario">Usuario</option>
-                                                    <option value="superadmin">Super Administrador</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-1"></i>Cancelar
-                                </button>
-                                <button type="button" class="btn btn-success">
-                                    <i class="fas fa-save me-1"></i>Crear Usuario
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Incluir modal para agregar usuario -->
+                <?php include 'templates/add_user_modal.php'; ?>
+
+                <!-- Incluir modal para editar usuario -->
+                <?php include 'templates/edit_user_modal.php'; ?>
+
+                <!-- Incluir modal para eliminar usuario -->
+                <?php include 'templates/delete_user_modal.php'; ?>
 
                 <!-- Incluir modal para ver detalles del usuario -->
                 <?php include 'templates/view_user_modal.php'; ?>
@@ -617,27 +564,463 @@ $(document).ready(function() {
         $("#userDetailsError").show();
     }
     
+    // ========================================
+    // FUNCIONALIDAD AGREGAR USUARIO
+    // ========================================
+    
+    // Evento para el botón de guardar nuevo usuario
+    $("#saveNewUser").on("click", function() {
+        const form = document.getElementById("addUserForm");
+        
+        // Validar formulario
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+        
+        // Obtener datos del formulario
+        const formData = new FormData(form);
+        const userData = {
+            nombre: formData.get("nombre"),
+            email: formData.get("email"),
+            password: formData.get("password"),
+            rol: formData.get("rol"),
+            activo: formData.get("activo")
+        };
+        
+        // Mostrar loading
+        $("#saveUserSpinner").show();
+        $("#saveUserIcon").hide();
+        $("#saveNewUser").prop("disabled", true);
+        
+        // Enviar datos via AJAX
+        $.ajax({
+            url: "controllers/controller.php?action=create",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(userData),
+            success: function(response) {
+                if (response.success) {
+                    // Éxito - cerrar modal y recargar tabla
+                    $("#addUserModal").modal("hide");
+                    showAlert(response.message, "success");
+                    
+                    // Recargar la tabla para mostrar el nuevo usuario
+                    table.ajax.reload();
+                    
+                    // Limpiar formulario
+                    resetAddUserForm();
+                } else {
+                    // Error del servidor
+                    showAlert(response.error, "danger");
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = "Error al crear el usuario";
+                
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                showAlert(errorMessage, "danger");
+            },
+            complete: function() {
+                // Ocultar loading
+                $("#saveUserSpinner").hide();
+                $("#saveUserIcon").show();
+                $("#saveNewUser").prop("disabled", false);
+            }
+        });
+    });
+    
+    // Función para resetear el formulario de agregar usuario
+    function resetAddUserForm() {
+        const form = document.getElementById("addUserForm");
+        form.reset();
+        form.classList.remove("was-validated");
+        
+        // Resetear valores por defecto
+        $("#addUserStatus").val("1");
+    }
+    
+    // Resetear formulario cuando se cierra el modal
+    $("#addUserModal").on("hidden.bs.modal", function() {
+        resetAddUserForm();
+    });
+    
+    // Validación en tiempo real para mejor UX
+    $("#addUserEmail").on("blur", function() {
+        const email = $(this).val();
+        if (email && !isValidEmail(email)) {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
+    
+    $("#addUserPassword").on("input", function() {
+        const password = $(this).val();
+        if (password.length > 0 && password.length < 6) {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
+    
+    // Función auxiliar para validar email
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
     // Función para editar usuario
     function editUser(userId) {
-        showAlert(`Editar usuario #${userId}`, "warning");
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById("editUserModal"));
+        modal.show();
+        
+        // Mostrar estado de carga
+        $("#editUserLoading").show();
+        $("#editUserForm").hide();
+        $("#editUserError").hide();
+        $("#saveEditUser").hide();
+        
+        // Cargar datos del usuario via AJAX
+        $.ajax({
+            url: `controllers/controller.php?action=details&id=${userId}`,
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    populateEditForm(response.data);
+                    $("#editUserLoading").hide();
+                    $("#editUserForm").show();
+                    $("#saveEditUser").show();
+                } else {
+                    showEditUserError();
+                }
+            },
+            error: function() {
+                showEditUserError();
+            }
+        });
     }
+    
+    // Función para poblar el formulario de edición
+    function populateEditForm(user) {
+        $("#editUserId").val(user.id);
+        $("#editUserName").val(user.nombre);
+        $("#editUserEmail").val(user.email);
+        $("#editUserRole").val(user.rol);
+        $("#editUserStatus").val(user.activo ? "1" : "0");
+        $("#editUserPassword").val(""); // Siempre vacío
+        
+        // Limpiar validaciones previas
+        $("#editUserForm").removeClass("was-validated");
+        $("#editUserForm .form-control").removeClass("is-invalid is-valid");
+        $("#editUserForm .form-select").removeClass("is-invalid is-valid");
+    }
+    
+    // Función para mostrar error en la carga de edición
+    function showEditUserError() {
+        $("#editUserLoading").hide();
+        $("#editUserForm").hide();
+        $("#editUserError").show();
+        $("#saveEditUser").hide();
+    }
+    
+    // Evento para el botón de guardar cambios del usuario
+    $("#saveEditUser").on("click", function() {
+        const form = document.getElementById("editUserForm");
+        
+        // Validar formulario (excluyendo password si está vacío)
+        const password = $("#editUserPassword").val();
+        if (password && password.length < 6) {
+            $("#editUserPassword").addClass("is-invalid");
+            form.classList.add("was-validated");
+            return;
+        }
+        
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+        
+        // Obtener datos del formulario
+        const formData = new FormData(form);
+        const userData = {
+            nombre: formData.get("nombre"),
+            email: formData.get("email"),
+            rol: formData.get("rol"),
+            activo: formData.get("activo")
+        };
+        
+        // Solo incluir password si se ingresó una nueva
+        if (password) {
+            userData.password = password;
+        }
+        
+        const userId = formData.get("id");
+        
+        // Mostrar loading
+        $("#saveEditUserSpinner").show();
+        $("#saveEditUserIcon").hide();
+        $("#saveEditUser").prop("disabled", true);
+        
+        // Enviar datos via AJAX
+        $.ajax({
+            url: `controllers/controller.php?action=update&id=${userId}`,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(userData),
+            success: function(response) {
+                if (response.success) {
+                    // Éxito - cerrar modal y recargar tabla
+                    $("#editUserModal").modal("hide");
+                    showAlert(response.message, "success");
+                    
+                    // Recargar la tabla para mostrar los cambios
+                    table.ajax.reload();
+                    
+                    // Limpiar formulario
+                    resetEditUserForm();
+                } else {
+                    // Error del servidor
+                    showAlert(response.error, "danger");
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = "Error al actualizar el usuario";
+                
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                showAlert(errorMessage, "danger");
+            },
+            complete: function() {
+                // Ocultar loading
+                $("#saveEditUserSpinner").hide();
+                $("#saveEditUserIcon").show();
+                $("#saveEditUser").prop("disabled", false);
+            }
+        });
+    });
+    
+    // Función para resetear el formulario de editar usuario
+    function resetEditUserForm() {
+        const form = document.getElementById("editUserForm");
+        form.reset();
+        form.classList.remove("was-validated");
+        $("#editUserForm .form-control").removeClass("is-invalid is-valid");
+        $("#editUserForm .form-select").removeClass("is-invalid is-valid");
+    }
+    
+    // Resetear formulario cuando se cierra el modal de edición
+    $("#editUserModal").on("hidden.bs.modal", function() {
+        resetEditUserForm();
+    });
+    
+    // Validación en tiempo real para el formulario de edición
+    $("#editUserEmail").on("blur", function() {
+        const email = $(this).val();
+        if (email && !isValidEmail(email)) {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
+    
+    $("#editUserPassword").on("input", function() {
+        const password = $(this).val();
+        if (password.length > 0 && password.length < 6) {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
     
     // Función para eliminar usuario
     function deleteUser(userId) {
-        if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-            showAlert(`Eliminar usuario #${userId}`, "danger");
-        }
+        // Primera confirmación con SweetAlert
+        Swal.fire({
+            title: "PRIMERA CONFIRMACIÓN",
+            html: `
+                <div class="text-center">
+                    <h5>¿Estás completamente seguro?</h5>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Esta acción eliminará permanentemente:</strong>
+                        <ul class="list-unstyled mt-2 text-start">
+                            <li>• El usuario y toda su información</li>
+                            <li>• Todos sus ingresos registrados</li>
+                            <li>• Todos sus gastos y gastos fijos</li>
+                            <li>• Sus categorías y métodos de pago personalizados</li>
+                        </ul>
+                        <strong>Esta acción NO se puede deshacer.</strong>
+                    </div>
+                </div>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, continuar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Cargar datos del usuario para mostrar en el modal de segunda confirmación
+                $.ajax({
+                    url: `controllers/controller.php?action=details&id=${userId}`,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.success) {
+                            showDeleteUserModal(response.data);
+                        } else {
+                            showAlert("Error al obtener los datos del usuario", "danger");
+                        }
+                    },
+                    error: function() {
+                        showAlert("Error al cargar los datos del usuario", "danger");
+                    }
+                });
+            }
+        });
     }
     
-    // Efectos hover para las cards de estadísticas
-    $(".card").hover(
-        function() {
-            $(this).addClass("shadow-lg").css("transform", "translateY(-2px)");
-        },
-        function() {
-            $(this).removeClass("shadow-lg").css("transform", "translateY(0)");
+    // Función para mostrar el modal de eliminación con los datos del usuario
+    function showDeleteUserModal(user) {
+        // Poblar datos del usuario en el modal
+        $("#deleteUserName").text(user.nombre);
+        $("#deleteUserEmail").text(user.email);
+        
+        // Resetear formulario
+        $("#deleteConfirmText").val("");
+        $("#confirmDeleteUser").prop("disabled", true);
+        $("#confirmTextError").hide();
+        
+        // Almacenar ID del usuario para usar después
+        $("#confirmDeleteUser").data("user-id", user.id);
+        $("#confirmDeleteUser").data("user-name", user.nombre);
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById("deleteUserModal"));
+        modal.show();
+    }
+    
+    // Validación en tiempo real para el campo de confirmación
+    $("#deleteConfirmText").on("input", function() {
+        const confirmText = $(this).val();
+        const isValid = confirmText === "ELIMINAR";
+        
+        $("#confirmDeleteUser").prop("disabled", !isValid);
+        
+        if (confirmText.length > 0 && !isValid) {
+            $("#confirmTextError").show();
+        } else {
+            $("#confirmTextError").hide();
         }
-    );
+    });
+    
+    // Evento para confirmar eliminación final
+    $("#confirmDeleteUser").on("click", function() {
+        const userId = $(this).data("user-id");
+        const userName = $(this).data("user-name");
+        const confirmText = $("#deleteConfirmText").val();
+        
+        // Validación final
+        if (confirmText !== "ELIMINAR") {
+            $("#confirmTextError").show();
+            return;
+        }
+        
+        // Mostrar loading
+        $("#deleteUserSpinner").show();
+        $("#deleteUserIcon").hide();
+        $("#confirmDeleteUser").prop("disabled", true);
+        
+        // Enviar petición de eliminación
+        $.ajax({
+            url: `controllers/controller.php?action=delete&id=${userId}`,
+            type: "DELETE",
+            success: function(response) {
+                if (response.success) {
+                    // Éxito - cerrar modal y recargar tabla
+                    $("#deleteUserModal").modal("hide");
+                    
+                    // Mostrar mensaje detallado con SweetAlert
+                    let mensaje = response.message;
+                    let detalles = "";
+                    
+                    if (response.total_records && response.total_records > 0) {
+                        detalles = `<div class="alert alert-info mt-3">
+                            <strong>Registros eliminados:</strong><br>
+                            <small>Total: ${response.total_records} registros asociados</small>
+                        </div>`;
+                    }
+                    
+                    Swal.fire({
+                        title: "Usuario Eliminado",
+                        html: `
+                            <div class="text-center">
+                                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                                <p class="mt-3">${mensaje}</p>
+                                ${detalles}
+                            </div>
+                        `,
+                        icon: "success",
+                        confirmButtonColor: "#198754",
+                        confirmButtonText: "Entendido"
+                    });
+                    
+                    // Recargar la tabla para quitar el usuario eliminado
+                    table.ajax.reload();
+                    
+                    // Log de la acción (opcional)
+                    console.log(`Usuario ${userName} (ID: ${userId}) eliminado exitosamente`);
+                    if (response.deleted_records) {
+                        console.log("Registros eliminados:", response.deleted_records);
+                    }
+                } else {
+                    // Error del servidor
+                    showAlert(response.error, "danger");
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = "Error al eliminar el usuario";
+                
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                showAlert(errorMessage, "danger");
+            },
+            complete: function() {
+                // Ocultar loading
+                $("#deleteUserSpinner").hide();
+                $("#deleteUserIcon").show();
+                $("#confirmDeleteUser").prop("disabled", false);
+            }
+        });
+    });
+    
+    // Resetear modal cuando se cierra
+    $("#deleteUserModal").on("hidden.bs.modal", function() {
+        $("#deleteConfirmText").val("");
+        $("#confirmDeleteUser").prop("disabled", true);
+        $("#confirmTextError").hide();
+        $("#deleteUserSpinner").hide();
+        $("#deleteUserIcon").show();
+    });
+    
+    // Enfocar automáticamente el campo de confirmación cuando se abre el modal
+    $("#deleteUserModal").on("shown.bs.modal", function() {
+        $("#deleteConfirmText").focus();
+    });
     
     // Inicializar tooltips iniciales
     initializeTooltips();

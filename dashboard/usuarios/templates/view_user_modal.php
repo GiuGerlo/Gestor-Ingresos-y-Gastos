@@ -104,16 +104,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <div class="alert alert-info mb-0" role="alert">
-                                                <i class="fas fa-info-circle me-2"></i>
-                                                <strong>Tiempo en el sistema:</strong> 
-                                                <span id="userDetailTimeInSystem">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -150,20 +140,6 @@
 #viewUserModal .modal-content {
     border: none;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-#viewUserModal .card {
-    transition: transform 0.2s;
-}
-
-#viewUserModal .card:hover {
-    transform: translateY(-2px);
-}
-
-#viewUserModal .row.mb-3:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-    border-radius: 0.375rem;
-    padding: 0.25rem;
 }
 
 .spinner-border-sm {
