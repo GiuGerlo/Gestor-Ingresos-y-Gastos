@@ -130,7 +130,7 @@ function getAllExpenses($pdo, $user_id) {
         $sql = "
             SELECT 
                 g.id,
-                g.fecha,
+                DATE_FORMAT(g.fecha, '%Y-%m-%d') as fecha,
                 g.descripcion,
                 g.monto,
                 c.nombre as categoria,
@@ -152,7 +152,7 @@ function getAllExpenses($pdo, $user_id) {
             $params[] = $mes;
         }
         
-        $sql .= " ORDER BY g.fecha DESC, g.created_at DESC";
+        $sql .= " ORDER BY g.fecha DESC, g.id ASC";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
@@ -404,7 +404,7 @@ function getExpenseDetails($pdo, $user_id, $id) {
         $stmt = $pdo->prepare("
             SELECT 
                 g.id,
-                g.fecha,
+                DATE_FORMAT(g.fecha, '%Y-%m-%d') as fecha,
                 g.descripcion,
                 g.monto,
                 g.categoria_id,
@@ -460,8 +460,54 @@ function updateExpense($pdo, $user_id, $id, $data) {
             return;
         }
         
-        // Validar datos (similar a createExpense)
-        // ... validaciones ...
+        // Validar datos requeridos
+        if (empty($data['fecha'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La fecha es requerida']);
+            return;
+        }
+        
+        if (empty($data['descripcion'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La descripción es requerida']);
+            return;
+        }
+        
+        if (empty($data['monto']) || $data['monto'] <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El monto debe ser mayor a 0']);
+            return;
+        }
+        
+        if (empty($data['categoria_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La categoría es requerida']);
+            return;
+        }
+        
+        if (empty($data['metodo_pago_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El método de pago es requerido']);
+            return;
+        }
+        
+        // Verificar que la categoría existe y es de tipo gasto
+        $stmt = $pdo->prepare("SELECT id FROM categorias WHERE id = ? AND tipo = 'gasto' AND activo = 1");
+        $stmt->execute([$data['categoria_id']]);
+        if (!$stmt->fetch()) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Categoría no válida']);
+            return;
+        }
+        
+        // Verificar que el método de pago existe y está activo
+        $stmt = $pdo->prepare("SELECT id FROM metodos_pago WHERE id = ? AND activo = 1");
+        $stmt->execute([$data['metodo_pago_id']]);
+        if (!$stmt->fetch()) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Método de pago no válido']);
+            return;
+        }
         
         // Actualizar gasto
         $stmt = $pdo->prepare("
