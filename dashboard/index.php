@@ -19,27 +19,31 @@ $user_email = $_SESSION['user_email'] ?? '';
 $user_rol = $_SESSION['user_rol'] ?? 'usuario';
 $user_id = $_SESSION['user_id'];
 
-// Obtener estadísticas del mes actual
-$mes_actual = date('n');
-$ano_actual = date('Y');
+// Obtener mes y año desde parámetros GET o usar actual
+$mes_seleccionado = $_GET['mes'] ?? date('n');
+$ano_seleccionado = $_GET['ano'] ?? date('Y');
+
+// Validar mes y año
+$mes_seleccionado = max(1, min(12, (int)$mes_seleccionado));
+$ano_seleccionado = max(2020, min(2030, (int)$ano_seleccionado));
 
 try {
-    // Estadísticas de ingresos del mes
+    // Estadísticas de ingresos del mes seleccionado
     $stmt = $pdo->prepare("
         SELECT COALESCE(SUM(monto), 0) as total_ingresos 
         FROM ingresos 
         WHERE user_id = ? AND YEAR(fecha) = ? AND MONTH(fecha) = ?
     ");
-    $stmt->execute([$user_id, $ano_actual, $mes_actual]);
+    $stmt->execute([$user_id, $ano_seleccionado, $mes_seleccionado]);
     $total_ingresos = $stmt->fetch()['total_ingresos'];
 
-    // Estadísticas de gastos del mes
+    // Estadísticas de gastos del mes seleccionado
     $stmt = $pdo->prepare("
         SELECT COALESCE(SUM(monto), 0) as total_gastos 
         FROM gastos 
         WHERE user_id = ? AND YEAR(fecha) = ? AND MONTH(fecha) = ?
     ");
-    $stmt->execute([$user_id, $ano_actual, $mes_actual]);
+    $stmt->execute([$user_id, $ano_seleccionado, $mes_seleccionado]);
     $total_gastos = $stmt->fetch()['total_gastos'];
 
     // Estadísticas de gastos fijos activos
@@ -51,45 +55,57 @@ try {
     $stmt->execute([$user_id]);
     $total_gastos_fijos = $stmt->fetch()['total_gastos_fijos'];
 
-    // Últimas transacciones
+    // Últimas transacciones del mes seleccionado
     $stmt = $pdo->prepare("
-        (SELECT 'ingreso' as tipo, i.fecha, c.nombre as categoria, i.descripcion, i.monto, mp.color
+        (SELECT 'ingreso' as tipo, DATE_FORMAT(i.fecha, '%Y-%m-%d') as fecha, c.nombre as categoria, i.descripcion, i.monto, mp.color
          FROM ingresos i 
          JOIN categorias c ON i.categoria_id = c.id 
          JOIN metodos_pago mp ON i.metodo_pago_id = mp.id
-         WHERE i.user_id = ? 
+         WHERE i.user_id = ? AND YEAR(i.fecha) = ? AND MONTH(i.fecha) = ?
          ORDER BY i.fecha DESC, i.created_at DESC 
-         LIMIT 3)
+         LIMIT 5)
         UNION ALL
-        (SELECT 'gasto' as tipo, g.fecha, c.nombre as categoria, g.descripcion, g.monto, mp.color
+        (SELECT 'gasto' as tipo, DATE_FORMAT(g.fecha, '%Y-%m-%d') as fecha, c.nombre as categoria, g.descripcion, g.monto, mp.color
          FROM gastos g 
          JOIN categorias c ON g.categoria_id = c.id 
          JOIN metodos_pago mp ON g.metodo_pago_id = mp.id
-         WHERE g.user_id = ? 
+         WHERE g.user_id = ? AND YEAR(g.fecha) = ? AND MONTH(g.fecha) = ?
          ORDER BY g.fecha DESC, g.created_at DESC 
-         LIMIT 3)
+         LIMIT 5)
         ORDER BY fecha DESC
-        LIMIT 5
+        LIMIT 8
     ");
-    $stmt->execute([$user_id, $user_id]);
+    $stmt->execute([$user_id, $ano_seleccionado, $mes_seleccionado, $user_id, $ano_seleccionado, $mes_seleccionado]);
     $ultimas_transacciones = $stmt->fetchAll();
 
-    // Próximos gastos fijos (dentro de 5 días)
+    // Próximos gastos fijos (dentro de 7 días) - Usando zona horaria Argentina
+    $hoy = date('Y-m-d');
+    $dia_actual = (int)date('j');
+    
     $stmt = $pdo->prepare("
-        SELECT nombre, monto, dia_mes,
-               CASE 
-                   WHEN dia_mes >= DAY(CURDATE()) THEN 
-                       DATE_ADD(CURDATE(), INTERVAL (dia_mes - DAY(CURDATE())) DAY)
-                   ELSE 
-                       DATE_ADD(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), INTERVAL (dia_mes - DAY(CURDATE())) DAY)
-               END as proxima_fecha
+        SELECT 
+            nombre, 
+            monto, 
+            dia_mes,
+            CASE 
+                WHEN dia_mes >= ? THEN 
+                    DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(CURDATE()), '-', LEAST(dia_mes, DAY(LAST_DAY(CURDATE())))))
+                ELSE 
+                    DATE(CONCAT(
+                        CASE WHEN MONTH(CURDATE()) = 12 THEN YEAR(CURDATE()) + 1 ELSE YEAR(CURDATE()) END,
+                        '-',
+                        CASE WHEN MONTH(CURDATE()) = 12 THEN 1 ELSE MONTH(CURDATE()) + 1 END,
+                        '-',
+                        LEAST(dia_mes, DAY(LAST_DAY(DATE_ADD(CURDATE(), INTERVAL 1 MONTH))))
+                    ))
+            END as proxima_fecha
         FROM gastos_fijos 
         WHERE user_id = ? AND activo = 1
-        HAVING proxima_fecha <= DATE_ADD(CURDATE(), INTERVAL 5 DAY)
+        HAVING proxima_fecha <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
         ORDER BY proxima_fecha
-        LIMIT 3
+        LIMIT 5
     ");
-    $stmt->execute([$user_id]);
+    $stmt->execute([$dia_actual, $user_id]);
     $proximos_gastos_fijos = $stmt->fetchAll();
 
 } catch (PDOException $e) {
@@ -103,11 +119,29 @@ $balance_disponible = $total_ingresos - ($total_gastos + $total_gastos_fijos);
 
 // Variables para el header dinámico
 $current_page = 'dashboard';
+
+// Array de meses para el dropdown
+$meses = [
+    1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+    5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+    9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+];
+
 $header_buttons = '<div class="btn-group">
-    <button type="button" class="btn btn-sm btn-outline-primary">
-        <i class="fas fa-calendar-alt me-1"></i>
-        ' . date('M Y') . '
-    </button>
+    <form method="GET" class="d-flex gap-2">
+        <select name="mes" class="form-select form-select-sm" onchange="this.form.submit()">
+            ' . array_reduce(array_keys($meses), function($html, $num_mes) use ($meses, $mes_seleccionado) {
+                $selected = $num_mes == $mes_seleccionado ? 'selected' : '';
+                return $html . "<option value=\"{$num_mes}\" {$selected}>{$meses[$num_mes]}</option>";
+            }, '') . '
+        </select>
+        <select name="ano" class="form-select form-select-sm" onchange="this.form.submit()">
+            ' . array_reduce(range(2020, 2030), function($html, $ano) use ($ano_seleccionado) {
+                $selected = $ano == $ano_seleccionado ? 'selected' : '';
+                return $html . "<option value=\"{$ano}\" {$selected}>{$ano}</option>";
+            }, '') . '
+        </select>
+    </form>
     <button type="button" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-clock me-1"></i>
         ' . date('H:i') . '
@@ -117,6 +151,55 @@ $header_buttons = '<div class="btn-group">
 // Incluir header
 include 'includes/header.php';
 ?>
+
+<style>
+/* Estilos para el dropdown del mes */
+.btn-toolbar form {
+    align-items: center;
+}
+
+.btn-toolbar .form-select-sm {
+    font-size: 0.875rem;
+    min-width: 120px;
+}
+
+.btn-toolbar .form-select-sm:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-toolbar .form-select-sm:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+}
+
+/* Mejoras visuales para las cards de estadísticas */
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive para el header */
+@media (max-width: 768px) {
+    .btn-toolbar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-toolbar form {
+        width: 100%;
+    }
+    
+    .btn-toolbar .form-select-sm {
+        min-width: auto;
+        flex: 1;
+    }
+}
+</style>
 
     <div class="container-fluid">
         <div class="row">
@@ -131,6 +214,7 @@ include 'includes/header.php';
                         <h1 class="h2 mb-1">
                             <i class="fas fa-tachometer-alt text-primary me-2"></i>
                             Dashboard Financiero
+                            <small class="text-muted">- <?php echo $meses[$mes_seleccionado] . ' ' . $ano_seleccionado; ?></small>
                         </h1>
                         <p class="text-muted mb-0">
                             <i class="fas fa-user me-1"></i>
@@ -183,7 +267,7 @@ include 'includes/header.php';
                                         <h4 class="mb-0 text-success">
                                             $<?php echo number_format($total_ingresos, 2, ',', '.'); ?>
                                         </h4>
-                                        <small class="text-muted"><?php echo date('F Y'); ?></small>
+                                        <small class="text-muted"><?php echo $meses[$mes_seleccionado] . ' ' . $ano_seleccionado; ?></small>
                                     </div>
                                 </div>
                             </div>
@@ -351,7 +435,7 @@ include 'includes/header.php';
                             <div class="card-header bg-light border-0">
                                 <h5 class="card-title mb-0">
                                     <i class="fas fa-history me-2"></i>
-                                    Actividad Reciente
+                                    Actividad Reciente - <?php echo $meses[$mes_seleccionado]; ?>
                                 </h5>
                             </div>
                             <div class="card-body">

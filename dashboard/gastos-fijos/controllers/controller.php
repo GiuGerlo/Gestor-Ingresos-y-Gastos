@@ -82,6 +82,9 @@ function handlePost($pdo, $action, $user_id) {
         case 'update':
             updateFixedExpense($pdo, $user_id, $_POST['id'] ?? 0, $_POST);
             break;
+        case 'delete':
+            deleteFixedExpense($pdo, $user_id, $_POST['id'] ?? 0);
+            break;
         default:
             http_response_code(400);
             echo json_encode(['error' => 'Acción no válida']);
@@ -108,12 +111,12 @@ function handlePut($pdo, $action, $user_id) {
 }
 
 /**
- * Manejar peticiones DELETE (eliminar)
+ * Manejar solicitudes DELETE (eliminar)
  */
 function handleDelete($pdo, $action, $user_id) {
     switch ($action) {
         case 'delete':
-            deleteFixedExpense($pdo, $user_id, $_GET['id'] ?? 0);
+            deleteFixedExpense($pdo, $user_id, $_REQUEST['id'] ?? 0);
             break;
         default:
             http_response_code(400);
@@ -126,14 +129,22 @@ function handleDelete($pdo, $action, $user_id) {
  */
 function getAllFixedExpenses($pdo, $user_id) {
     try {
+        // Primero, procesar gastos fijos que han terminado sus cuotas
+        processExpiredFixedExpenses($pdo, $user_id);
+        
+        // Luego, finalizar automáticamente gastos fijos vencidos
+        autoFinishExpiredFixedExpenses($pdo, $user_id);
+        
         $stmt = $pdo->prepare("
             SELECT 
                 gf.id,
+                gf.fecha_inicio,
                 gf.dia_mes,
                 gf.nombre,
                 gf.monto,
                 gf.cuotas_restantes,
                 DATE_FORMAT(gf.mes_ultima_cuota, '%Y-%m') as mes_ultima_cuota,
+                gf.fecha_fin,
                 gf.activo,
                 gf.notificado,
                 gf.created_at,
@@ -179,11 +190,13 @@ function getFixedExpenseDetails($pdo, $user_id, $id) {
         $stmt = $pdo->prepare("
             SELECT 
                 gf.id,
+                gf.fecha_inicio,
                 gf.dia_mes,
                 gf.nombre,
                 gf.monto,
                 gf.cuotas_restantes,
                 DATE_FORMAT(gf.mes_ultima_cuota, '%Y-%m') as mes_ultima_cuota,
+                gf.fecha_fin,
                 gf.activo,
                 gf.notificado,
                 gf.created_at,
@@ -224,6 +237,12 @@ function getFixedExpenseDetails($pdo, $user_id, $id) {
 function createFixedExpense($pdo, $user_id, $data) {
     try {
         // Validar datos requeridos
+        if (empty($data['fecha_inicio'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La fecha de inicio es requerida']);
+            return;
+        }
+        
         if (empty($data['dia_mes']) || !is_numeric($data['dia_mes'])) {
             http_response_code(400);
             echo json_encode(['error' => 'El día del mes es requerido y debe ser un número']);
@@ -267,30 +286,30 @@ function createFixedExpense($pdo, $user_id, $data) {
         // Preparar datos para inserción
         $cuotas_restantes = !empty($data['cuotas_restantes']) ? (int)$data['cuotas_restantes'] : null;
         $mes_ultima_cuota = !empty($data['mes_ultima_cuota']) ? $data['mes_ultima_cuota'] . '-01' : null;
-        $activo = isset($data['activo']) ? 1 : 0;
+        $fecha_fin = !empty($data['fecha_fin']) ? $data['fecha_fin'] : null;
+        $activo = 1; // Siempre activo al crear
         
         // Insertar gasto fijo
         $stmt = $pdo->prepare("
             INSERT INTO gastos_fijos (
-                user_id, dia_mes, nombre, monto, cuotas_restantes, 
-                mes_ultima_cuota, activo, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                user_id, fecha_inicio, dia_mes, nombre, monto, cuotas_restantes, 
+                mes_ultima_cuota, fecha_fin, activo, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         
         $stmt->execute([
             $user_id,
+            $data['fecha_inicio'],
             $data['dia_mes'],
             $data['nombre'],
             $data['monto'],
             $cuotas_restantes,
             $mes_ultima_cuota,
+            $fecha_fin,
             $activo
         ]);
         
         $new_id = $pdo->lastInsertId();
-        
-        // Log de la acción
-        error_log("Gasto fijo creado: {$data['nombre']} (ID: {$new_id}) por usuario {$user_id}");
         
         echo json_encode([
             'success' => true,
@@ -328,6 +347,12 @@ function updateFixedExpense($pdo, $user_id, $id, $data) {
         }
         
         // Validar datos requeridos
+        if (empty($data['fecha_inicio'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La fecha de inicio es requerida']);
+            return;
+        }
+        
         if (empty($data['dia_mes']) || !is_numeric($data['dia_mes'])) {
             http_response_code(400);
             echo json_encode(['error' => 'El día del mes es requerido y debe ser un número']);
@@ -373,27 +398,35 @@ function updateFixedExpense($pdo, $user_id, $id, $data) {
         $mes_ultima_cuota = !empty($data['mes_ultima_cuota']) ? $data['mes_ultima_cuota'] . '-01' : null;
         $activo = isset($data['activo']) ? 1 : 0;
         
+        // Manejar fecha_fin
+        $fecha_fin = null;
+        if (!empty($data['fecha_fin'])) {
+            $fecha_fin = $data['fecha_fin'];
+        } elseif (!$activo && $cuotas_restantes !== null && $cuotas_restantes <= 0) {
+            // Calcular fecha_fin automáticamente si no está activo y tiene 0 cuotas
+            $fecha_fin = date('Y-m-d');
+        }
+        
         // Actualizar gasto fijo
         $stmt = $pdo->prepare("
             UPDATE gastos_fijos 
-            SET dia_mes = ?, nombre = ?, monto = ?, cuotas_restantes = ?, 
-                mes_ultima_cuota = ?, activo = ?, updated_at = NOW()
+            SET fecha_inicio = ?, dia_mes = ?, nombre = ?, monto = ?, cuotas_restantes = ?, 
+                mes_ultima_cuota = ?, fecha_fin = ?, activo = ?, updated_at = NOW()
             WHERE id = ? AND user_id = ?
         ");
         
         $stmt->execute([
+            $data['fecha_inicio'],
             $data['dia_mes'],
             $data['nombre'],
             $data['monto'],
             $cuotas_restantes,
             $mes_ultima_cuota,
+            $fecha_fin,
             $activo,
             $id,
             $user_id
         ]);
-        
-        // Log de la acción
-        error_log("Gasto fijo actualizado: {$data['nombre']} (ID: {$id}) por usuario {$user_id}");
         
         echo json_encode([
             'success' => true,
@@ -433,9 +466,6 @@ function deleteFixedExpense($pdo, $user_id, $id) {
         $stmt = $pdo->prepare("DELETE FROM gastos_fijos WHERE id = ? AND user_id = ?");
         $stmt->execute([$id, $user_id]);
         
-        // Log de la acción
-        error_log("Gasto fijo eliminado: {$gasto_fijo['nombre']} (ID: {$id}) por usuario {$user_id}");
-        
         echo json_encode([
             'success' => true,
             'message' => "Gasto fijo \"{$gasto_fijo['nombre']}\" eliminado exitosamente"
@@ -445,122 +475,6 @@ function deleteFixedExpense($pdo, $user_id, $id) {
         error_log("Error eliminando gasto fijo: " . $e->getMessage());
         http_response_code(500);
         echo json_encode(['error' => 'Error al eliminar el gasto fijo']);
-    }
-}
-
-/**
- * Obtener estadísticas de gastos fijos
- */
-function getFixedExpenseStats($pdo, $user_id) {
-    try {
-        $stats = [];
-        
-        // Total mensual de gastos fijos activos
-        $stmt = $pdo->prepare("
-            SELECT COALESCE(SUM(monto), 0) as total_mensual
-            FROM gastos_fijos 
-            WHERE user_id = ? AND activo = 1
-        ");
-        $stmt->execute([$user_id]);
-        $stats['total_mensual'] = $stmt->fetch()['total_mensual'];
-        
-        // Cantidad de gastos fijos activos
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as activos
-            FROM gastos_fijos 
-            WHERE user_id = ? AND activo = 1
-        ");
-        $stmt->execute([$user_id]);
-        $stats['activos'] = $stmt->fetch()['activos'];
-        
-        // Cantidad de gastos fijos con cuotas
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as con_cuotas
-            FROM gastos_fijos 
-            WHERE user_id = ? AND activo = 1 AND cuotas_restantes IS NOT NULL
-        ");
-        $stmt->execute([$user_id]);
-        $stats['con_cuotas'] = $stmt->fetch()['con_cuotas'];
-        
-        // Próximos pagos (próximos 7 días)
-        $today = date('j'); // Día del mes actual
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as proximos_pagos
-            FROM gastos_fijos 
-            WHERE user_id = ? AND activo = 1 
-            AND dia_mes BETWEEN ? AND ?
-        ");
-        $stmt->execute([$user_id, $today, $today + 7]);
-        $stats['proximos_pagos'] = $stmt->fetch()['proximos_pagos'];
-        
-        // Gastos que terminan pronto (menos de 3 cuotas)
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as terminando_pronto
-            FROM gastos_fijos 
-            WHERE user_id = ? AND activo = 1 
-            AND cuotas_restantes IS NOT NULL AND cuotas_restantes <= 3
-        ");
-        $stmt->execute([$user_id]);
-        $stats['terminando_pronto'] = $stmt->fetch()['terminando_pronto'];
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $stats
-        ]);
-        
-    } catch (PDOException $e) {
-        error_log("Error obteniendo estadísticas de gastos fijos: " . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'Error al obtener estadísticas']);
-    }
-}
-
-/**
- * Obtener alertas de próximos pagos
- */
-function getPaymentAlerts($pdo, $user_id) {
-    try {
-        $today = date('j'); // Día del mes actual
-        
-        $stmt = $pdo->prepare("
-            SELECT 
-                gf.id,
-                gf.dia_mes,
-                gf.nombre,
-                gf.monto,
-                gf.cuotas_restantes,
-                CASE 
-                    WHEN gf.dia_mes = ? THEN 'HOY'
-                    WHEN gf.dia_mes BETWEEN ? AND ? THEN CONCAT('En ', (gf.dia_mes - ?), ' días')
-                    ELSE 'Futuro'
-                END as urgencia
-            FROM gastos_fijos gf
-            WHERE gf.user_id = ? AND gf.activo = 1
-            AND gf.dia_mes BETWEEN ? AND ?
-            ORDER BY gf.dia_mes ASC
-        ");
-        
-        $stmt->execute([
-            $today,           // Para HOY
-            $today + 1,       // Para En X días (inicio)
-            $today + 7,       // Para En X días (fin)
-            $today,           // Para cálculo de días
-            $user_id,         // Usuario
-            $today,           // Rango inicio
-            $today + 7        // Rango fin
-        ]);
-        
-        $alertas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $alertas
-        ]);
-        
-    } catch (PDOException $e) {
-        error_log("Error obteniendo alertas de pagos: " . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'Error al obtener alertas']);
     }
 }
 
@@ -613,6 +527,144 @@ function toggleFixedExpenseStatus($pdo, $user_id, $id) {
 }
 
 /**
+ * Obtener estadísticas de gastos fijos
+ */
+function getFixedExpenseStats($pdo, $user_id) {
+    try {
+        $stats = [];
+        
+        // Total mensual de gastos fijos activos
+        $stmt = $pdo->prepare("
+            SELECT COALESCE(SUM(monto), 0) as total_mensual
+            FROM gastos_fijos 
+            WHERE user_id = ? AND activo = 1
+        ");
+        $stmt->execute([$user_id]);
+        $stats['total_mensual'] = $stmt->fetch()['total_mensual'];
+        
+        // Cantidad de gastos fijos activos
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as activos
+            FROM gastos_fijos 
+            WHERE user_id = ? AND activo = 1
+        ");
+        $stmt->execute([$user_id]);
+        $stats['activos'] = $stmt->fetch()['activos'];
+        
+        // Cantidad de gastos fijos terminando pronto
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as terminando_pronto
+            FROM gastos_fijos 
+            WHERE user_id = ? AND activo = 1 
+            AND cuotas_restantes IS NOT NULL AND cuotas_restantes <= 3
+        ");
+        $stmt->execute([$user_id]);
+        $stats['terminando_pronto'] = $stmt->fetch()['terminando_pronto'];
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $stats
+        ]);
+        
+    } catch (PDOException $e) {
+        error_log("Error obteniendo estadísticas de gastos fijos: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al obtener estadísticas']);
+    }
+}
+
+/**
+ * Obtener alertas de próximos pagos
+ */
+function getPaymentAlerts($pdo, $user_id) {
+    try {
+        $today = date('j'); // Día del mes actual
+        
+        $stmt = $pdo->prepare("
+            SELECT 
+                gf.id,
+                gf.dia_mes,
+                gf.nombre,
+                gf.monto,
+                gf.cuotas_restantes
+            FROM gastos_fijos gf
+            WHERE gf.user_id = ? AND gf.activo = 1
+            AND gf.dia_mes BETWEEN ? AND ?
+            ORDER BY gf.dia_mes ASC
+        ");
+        
+        $stmt->execute([$user_id, $today, $today + 7]);
+        $alertas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $alertas
+        ]);
+        
+    } catch (PDOException $e) {
+        error_log("Error obteniendo alertas de pagos: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al obtener alertas']);
+    }
+}
+
+/**
+ * Automatizar finalización de gastos fijos que han completado sus cuotas
+ */
+function autoFinishExpiredFixedExpenses($pdo, $user_id) {
+    try {
+        // Buscar gastos fijos que deberían finalizar
+        $stmt = $pdo->prepare("
+            UPDATE gastos_fijos 
+            SET activo = 0, fecha_fin = CURDATE(), updated_at = NOW()
+            WHERE user_id = ? 
+            AND activo = 1 
+            AND cuotas_restantes IS NOT NULL 
+            AND cuotas_restantes <= 0
+            AND fecha_fin IS NULL
+        ");
+        
+        $stmt->execute([$user_id]);
+        $finalizados = $stmt->rowCount();
+        
+        if ($finalizados > 0) {
+            error_log("Finalizados automáticamente {$finalizados} gastos fijos para usuario {$user_id}");
+        }
+        
+        return $finalizados;
+        
+    } catch (PDOException $e) {
+        error_log("Error finalizando gastos fijos automáticamente: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Procesar gastos fijos que han terminado sus cuotas
+ */
+function processExpiredFixedExpenses($pdo, $user_id) {
+    try {
+        // Buscar gastos fijos con 0 cuotas restantes que aún están activos
+        $stmt = $pdo->prepare("
+            UPDATE gastos_fijos 
+            SET activo = 0, fecha_fin = CURDATE() 
+            WHERE user_id = ? AND cuotas_restantes = 0 AND activo = 1
+        ");
+        
+        $result = $stmt->execute([$user_id]);
+        
+        if ($result) {
+            $affected_rows = $stmt->rowCount();
+            if ($affected_rows > 0) {
+                error_log("Finalizados automáticamente $affected_rows gastos fijos para usuario $user_id");
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Error procesando gastos expirados: " . $e->getMessage());
+    }
+}
+
+/**
  * Calcular la fecha del próximo pago
  */
 function calculateNextPayment($dia_mes) {
@@ -657,21 +709,29 @@ function calculateDaysUntilPayment($dia_mes) {
 }
 
 /**
- * Obtener estado de las cuotas
+ * Obtener estado de las cuotas - CORREGIDA
  */
 function getQuotaStatus($gasto_fijo) {
-    if (!$gasto_fijo['cuotas_restantes']) {
-        return 'indefinido';
+    // Si no hay cuotas restantes o es 0, está finalizado
+    if (!$gasto_fijo['cuotas_restantes'] || $gasto_fijo['cuotas_restantes'] == 0) {
+        return 'finalizado';
     }
     
-    if ($gasto_fijo['cuotas_restantes'] <= 1) {
+    // Si solo queda 1 cuota
+    if ($gasto_fijo['cuotas_restantes'] == 1) {
         return 'ultima_cuota';
     }
     
+    // Si quedan 2-3 cuotas, está finalizando
     if ($gasto_fijo['cuotas_restantes'] <= 3) {
-        return 'terminando';
+        return 'finalizando';
     }
     
-    return 'normal';
+    // Si es indefinido (null o muy alto)
+    if ($gasto_fijo['cuotas_restantes'] > 100 || !isset($gasto_fijo['cuotas_restantes'])) {
+        return 'indefinido';
+    }
+    
+    return 'activo';
 }
 ?>

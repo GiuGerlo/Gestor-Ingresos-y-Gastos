@@ -213,6 +213,37 @@ $user_id = $_SESSION['user_id'];
             vertical-align: middle;
         }
 
+        /* Eliminar scroll horizontal */
+        .dataTables_wrapper .dataTables_scrollBody {
+            overflow-x: hidden !important;
+        }
+        
+        .dataTables_wrapper {
+            overflow-x: hidden !important;
+        }
+        
+        /* Contenedor de tabla sin scroll */
+        .table-container {
+            overflow: hidden !important;
+            width: 100%;
+        }
+        
+        /* Asegurar que la tabla se ajuste */
+        .table-fixed-expenses {
+            width: 100% !important;
+            table-layout: auto;
+        }
+        
+        /* Optimizar ancho de columnas */
+        .table-fixed-expenses th:nth-child(1) { width: 12%; } /* Fecha Inicio */
+        .table-fixed-expenses th:nth-child(2) { width: 8%; }  /* Día */
+        .table-fixed-expenses th:nth-child(3) { width: 20%; } /* Nombre */
+        .table-fixed-expenses th:nth-child(4) { width: 12%; } /* Monto */
+        .table-fixed-expenses th:nth-child(5) { width: 12%; } /* Cuotas */
+        .table-fixed-expenses th:nth-child(6) { width: 10%; } /* Estado */
+        .table-fixed-expenses th:nth-child(7) { width: 14%; } /* Próximo Pago */
+        .table-fixed-expenses th:nth-child(8) { width: 12%; } /* Acciones */
+
         /* Alertas de próximos vencimientos */
         .alert-next-payment {
             background-color: #FFF8E1;
@@ -287,10 +318,11 @@ $user_id = $_SESSION['user_id'];
                 <div class="desktop-view">
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-container">
                                 <table id="fixedExpensesTable" class="table table-striped table-hover table-fixed-expenses">
                                     <thead>
                                         <tr>
+                                            <th>Fecha Inicio</th>
                                             <th>Día</th>
                                             <th>Nombre</th>
                                             <th>Monto</th>
@@ -355,6 +387,16 @@ $user_id = $_SESSION['user_id'];
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label for="add_fecha_inicio" class="form-label">Fecha de Inicio *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="add_fecha_inicio" 
+                                       name="fecha_inicio" 
+                                       value="<?php echo date('Y-m-d'); ?>"
+                                       required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
                                 <label for="add_dia_mes" class="form-label">Día del Mes *</label>
                                 <select class="form-select" id="add_dia_mes" name="dia_mes" required>
                                     <option value="">Seleccionar día...</option>
@@ -363,7 +405,9 @@ $user_id = $_SESSION['user_id'];
                                     <?php endfor; ?>
                                 </select>
                             </div>
-                            
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="add_monto" class="form-label">Monto *</label>
                                 <div class="input-group">
@@ -377,16 +421,16 @@ $user_id = $_SESSION['user_id'];
                                            required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="add_nombre" class="form-label">Nombre del Gasto *</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="add_nombre" 
-                                   name="nombre" 
-                                   placeholder="Ej: Alquiler, Netflix, Gimnasio..." 
-                                   required>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="add_nombre" class="form-label">Nombre del Gasto *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="add_nombre" 
+                                       name="nombre" 
+                                       placeholder="Ej: Alquiler, Netflix, Gimnasio..." 
+                                       required>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -401,7 +445,18 @@ $user_id = $_SESSION['user_id'];
                                 <small class="text-muted">Si no especificas, será un gasto fijo indefinido</small>
                             </div>
                             
-                            <div class="col-md-6 mb-3" id="lastQuotaContainer" style="display: none;">
+                            <div class="col-md-6 mb-3" id="fechaFinContainer" style="display: none;">
+                                <label for="add_fecha_fin" class="form-label">Fecha de Fin (Opcional)</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="add_fecha_fin" 
+                                       name="fecha_fin">
+                                <small class="text-muted">Solo para gastos con cuotas limitadas</small>
+                            </div>
+                        </div>
+
+                        <div class="row" id="lastQuotaContainer" style="display: none;">
+                            <div class="col-md-6 mb-3">
                                 <label for="add_mes_ultima_cuota" class="form-label">Mes de Última Cuota</label>
                                 <input type="month" 
                                        class="form-control" 
@@ -449,6 +504,15 @@ $user_id = $_SESSION['user_id'];
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label for="edit_fecha_inicio" class="form-label">Fecha de Inicio *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="edit_fecha_inicio" 
+                                       name="fecha_inicio" 
+                                       required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
                                 <label for="edit_dia_mes" class="form-label">Día del Mes *</label>
                                 <select class="form-select" id="edit_dia_mes" name="dia_mes" required>
                                     <option value="">Seleccionar día...</option>
@@ -457,7 +521,9 @@ $user_id = $_SESSION['user_id'];
                                     <?php endfor; ?>
                                 </select>
                             </div>
-                            
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="edit_monto" class="form-label">Monto *</label>
                                 <div class="input-group">
@@ -471,15 +537,15 @@ $user_id = $_SESSION['user_id'];
                                            required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_nombre" class="form-label">Nombre del Gasto *</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="edit_nombre" 
-                                   name="nombre" 
-                                   required>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_nombre" class="form-label">Nombre del Gasto *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="edit_nombre" 
+                                       name="nombre" 
+                                       required>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -493,7 +559,17 @@ $user_id = $_SESSION['user_id'];
                                        placeholder="Dejar vacío para sin límite">
                             </div>
                             
-                            <div class="col-md-6 mb-3" id="editLastQuotaContainer" style="display: none;">
+                            <div class="col-md-6 mb-3" id="editFechaFinContainer" style="display: none;">
+                                <label for="edit_fecha_fin" class="form-label">Fecha de Fin (Opcional)</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="edit_fecha_fin" 
+                                       name="fecha_fin">
+                            </div>
+                        </div>
+
+                        <div class="row" id="editLastQuotaContainer" style="display: none;">
+                            <div class="col-md-6 mb-3">
                                 <label for="edit_mes_ultima_cuota" class="form-label">Mes de Última Cuota</label>
                                 <input type="month" 
                                        class="form-control" 
@@ -544,6 +620,16 @@ $user_id = $_SESSION['user_id'];
                         <div class="col-md-6">
                             <strong>Monto:</strong>
                             <p id="view_monto" class="mb-2 text-fixed-expense"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Fecha de Inicio:</strong>
+                            <p id="view_fecha_inicio" class="mb-2"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Fecha de Fin:</strong>
+                            <p id="view_fecha_fin" class="mb-2"></p>
                         </div>
                     </div>
                     <div class="row">
@@ -612,14 +698,26 @@ $user_id = $_SESSION['user_id'];
 
         function initializeDataTable() {
             fixedExpensesTable = $('#fixedExpensesTable').DataTable({
-                responsive: true,
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 'tr'
+                    }
+                },
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 },
-                order: [[0, 'asc']], // Ordenar por día del mes
+                order: [[0, 'desc']], // Ordenar por fecha de inicio (más recientes primero)
                 columnDefs: [
-                    { orderable: false, targets: -1 } // Última columna (acciones) no ordenable
-                ]
+                    { orderable: false, targets: -1 }, // Última columna (acciones) no ordenable
+                    { responsivePriority: 1, targets: 2 }, // Nombre siempre visible
+                    { responsivePriority: 2, targets: 3 }, // Monto siempre visible
+                    { responsivePriority: 3, targets: 1 }, // Día del mes siempre visible
+                    { responsivePriority: 4, targets: -1 }, // Acciones siempre visibles
+                    { responsivePriority: 5, targets: 0 } // Fecha inicio visible cuando sea posible
+                ],
+                scrollX: false, // Desactivar scroll horizontal
+                autoWidth: false // Desactivar auto width
             });
         }
 
@@ -640,10 +738,13 @@ $user_id = $_SESSION['user_id'];
             const cuotas = $('#add_cuotas_restantes').val();
             if (cuotas && cuotas > 0) {
                 $('#lastQuotaContainer').show();
+                $('#fechaFinContainer').show();
                 $('#add_mes_ultima_cuota').prop('required', true);
             } else {
                 $('#lastQuotaContainer').hide();
+                $('#fechaFinContainer').hide();
                 $('#add_mes_ultima_cuota').prop('required', false).val('');
+                $('#add_fecha_fin').val('');
             }
         }
 
@@ -651,10 +752,13 @@ $user_id = $_SESSION['user_id'];
             const cuotas = $('#edit_cuotas_restantes').val();
             if (cuotas && cuotas > 0) {
                 $('#editLastQuotaContainer').show();
+                $('#editFechaFinContainer').show();
                 $('#edit_mes_ultima_cuota').prop('required', true);
             } else {
                 $('#editLastQuotaContainer').hide();
+                $('#editFechaFinContainer').hide();
                 $('#edit_mes_ultima_cuota').prop('required', false).val('');
+                $('#edit_fecha_fin').val('');
             }
         }
 
@@ -689,13 +793,14 @@ $user_id = $_SESSION['user_id'];
                 const quotaInfo = getQuotaInfo(expense);
                 
                 fixedExpensesTable.row.add([
+                    `<small>${new Date(expense.fecha_inicio).toLocaleDateString('es-AR')}</small>`,
                     `<span class="day-highlight">${expense.dia_mes}</span>`,
                     expense.nombre,
                     `<strong>$${parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong>`,
                     quotaInfo,
                     statusBadge,
                     nextPayment,
-                    getActionButtons(expense.id)
+                    getActionButtons(expense.id, expense.nombre)
                 ]);
             });
             
@@ -739,6 +844,10 @@ $user_id = $_SESSION['user_id'];
                     </div>
                     <div class="mobile-card-body">
                         <div class="mobile-card-info">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Inicio: ${new Date(expense.fecha_inicio).toLocaleDateString('es-AR')}</span>
+                        </div>
+                        <div class="mobile-card-info">
                             <i class="fas fa-calendar-day"></i>
                             <span>Día ${expense.dia_mes} de cada mes</span>
                         </div>
@@ -775,7 +884,18 @@ $user_id = $_SESSION['user_id'];
                 return '<span class="status-badge status-inactive">Inactivo</span>';
             }
             
-            if (expense.cuotas_restantes && expense.cuotas_restantes <= 3) {
+            // Si no hay cuotas restantes o es 0, está finalizado
+            if (!expense.cuotas_restantes || expense.cuotas_restantes == 0) {
+                return '<span class="status-badge status-inactive">Finalizado</span>';
+            }
+            
+            // Si solo queda 1 cuota
+            if (expense.cuotas_restantes == 1) {
+                return '<span class="status-badge status-ending">Última Cuota</span>';
+            }
+            
+            // Si quedan 2-3 cuotas, está finalizando
+            if (expense.cuotas_restantes <= 3) {
                 return '<span class="status-badge status-ending">Finalizando</span>';
             }
             
@@ -956,6 +1076,8 @@ $user_id = $_SESSION['user_id'];
                         
                         $('#view_nombre').text(expense.nombre);
                         $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2}));
+                        $('#view_fecha_inicio').text(expense.fecha_inicio ? new Date(expense.fecha_inicio).toLocaleDateString('es-AR') : 'No definida');
+                        $('#view_fecha_fin').text(expense.fecha_fin ? new Date(expense.fecha_fin).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_dia_mes').html(`<span class="day-highlight">${expense.dia_mes}</span>`);
                         $('#view_estado').html(getStatusBadge(expense));
                         $('#view_cuotas_restantes').text(expense.cuotas_restantes || 'Sin límite');
@@ -986,19 +1108,17 @@ $user_id = $_SESSION['user_id'];
                         const expense = response.data;
                         
                         $('#edit_id').val(expense.id);
+                        $('#edit_fecha_inicio').val(expense.fecha_inicio);
                         $('#edit_dia_mes').val(expense.dia_mes);
                         $('#edit_nombre').val(expense.nombre);
                         $('#edit_monto').val(expense.monto);
                         $('#edit_cuotas_restantes').val(expense.cuotas_restantes || '');
                         $('#edit_mes_ultima_cuota').val(expense.mes_ultima_cuota || '');
+                        $('#edit_fecha_fin').val(expense.fecha_fin || '');
                         $('#edit_activo').prop('checked', expense.activo == 1);
                         
-                        // Toggle last quota field if needed
-                        if (expense.cuotas_restantes) {
-                            $('#editLastQuotaContainer').show();
-                        } else {
-                            $('#editLastQuotaContainer').hide();
-                        }
+                        // Toggle fields based on quota presence
+                        toggleLastQuotaFieldEdit();
                         
                         $('#editFixedExpenseModal').modal('show');
                     } else {
@@ -1045,7 +1165,7 @@ $user_id = $_SESSION['user_id'];
         function performDelete(id) {
             $.ajax({
                 url: 'controllers/controller.php',
-                method: 'DELETE',
+                method: 'POST',
                 data: { action: 'delete', id: id },
                 dataType: 'json',
                 success: function(response) {
@@ -1060,6 +1180,88 @@ $user_id = $_SESSION['user_id'];
                     showError('Error de conexión al eliminar');
                 }
             });
+        }
+
+        function viewFixedExpense(id) {
+            $.ajax({
+                url: 'controllers/controller.php',
+                method: 'GET',
+                data: { action: 'details', id: id },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const expense = response.data;
+                        
+                        $('#view_nombre').text(expense.nombre);
+                        $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2}));
+                        $('#view_fecha_inicio').text(expense.fecha_inicio ? new Date(expense.fecha_inicio).toLocaleDateString('es-AR') : 'No definida');
+                        $('#view_fecha_fin').text(expense.fecha_fin ? new Date(expense.fecha_fin).toLocaleDateString('es-AR') : 'No definida');
+                        $('#view_dia_mes').html(`<span class="day-highlight">${expense.dia_mes}</span>`);
+                        $('#view_estado').html(getStatusBadge(expense));
+                        $('#view_cuotas_restantes').text(expense.cuotas_restantes || 'Sin límite');
+                        $('#view_mes_ultima_cuota').text(expense.mes_ultima_cuota || 'N/A');
+                        $('#view_proximo_pago').text(calculateNextPayment(expense));
+                        $('#view_created_at').text(new Date(expense.created_at).toLocaleString('es-AR'));
+                        $('#view_updated_at').text(new Date(expense.updated_at).toLocaleString('es-AR'));
+                        
+                        $('#viewFixedExpenseModal').modal('show');
+                    } else {
+                        showError('Error al cargar detalles: ' + response.error);
+                    }
+                },
+                error: function() {
+                    showError('Error de conexión al cargar detalles');
+                }
+            });
+        }
+
+        function deleteFixedExpense(id, name) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¿Deseas eliminar el gasto fijo "${name}"? Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'controllers/controller.php',
+                        method: 'POST',
+                        data: { action: 'delete', id: id },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                loadFixedExpenses();
+                                showSuccess('Gasto fijo eliminado exitosamente');
+                            } else {
+                                showError('Error al eliminar: ' + response.error);
+                            }
+                        },
+                        error: function() {
+                            showError('Error de conexión al eliminar');
+                        }
+                    });
+                }
+            });
+        }
+
+        function getActionButtons(id, name) {
+            return `
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewFixedExpense(${id})" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="editFixedExpense(${id})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteFixedExpense(${id}, '${name}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
         }
 
         function showSuccess(message) {
