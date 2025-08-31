@@ -102,14 +102,25 @@ $header_buttons = '
         <li><h6 class="dropdown-header">Seleccionar Período</h6></li>
         <li><hr class="dropdown-divider"></li>';
 
-// Generar opciones de los últimos 12 meses
+// Generar opciones de los últimos 12 meses únicos
+$meses_generados = [];
+$fecha_actual = new DateTime();
 for ($i = 0; $i < 12; $i++) {
-    $mes_opcion = date('n', strtotime("-$i months"));
-    $ano_opcion = date('Y', strtotime("-$i months"));
-    $nombre_opcion = $nombre_mes[$mes_opcion] . ' ' . $ano_opcion;
-    $es_actual = ($mes_opcion == $mes_seleccionado && $ano_opcion == $ano_seleccionado);
+    $fecha_mes = clone $fecha_actual;
+    $fecha_mes->sub(new DateInterval("P{$i}M"));
     
-    $header_buttons .= '<li><a class="dropdown-item' . ($es_actual ? ' active' : '') . '" href="?mes=' . $mes_opcion . '&ano=' . $ano_opcion . '">' . $nombre_opcion . '</a></li>';
+    $mes_opcion = (int)$fecha_mes->format('n');
+    $ano_opcion = (int)$fecha_mes->format('Y');
+    $clave_mes = $ano_opcion . '-' . str_pad($mes_opcion, 2, '0', STR_PAD_LEFT);
+    
+    // Evitar duplicados
+    if (!in_array($clave_mes, $meses_generados)) {
+        $meses_generados[] = $clave_mes;
+        $nombre_opcion = $nombre_mes[$mes_opcion] . ' ' . $ano_opcion;
+        $es_actual = ($mes_opcion == $mes_seleccionado && $ano_opcion == $ano_seleccionado);
+        
+        $header_buttons .= '<li><a class="dropdown-item' . ($es_actual ? ' active' : '') . '" href="?mes=' . $mes_opcion . '&ano=' . $ano_opcion . '">' . $nombre_opcion . '</a></li>';
+    }
 }
 
 $header_buttons .= '
@@ -158,6 +169,36 @@ include '../includes/header.php';
     .dropdown-item.active {
         background-color: #ffc107 !important;
         color: black !important;
+    }
+    
+    /* Estilos para DataTables responsive sin scroll horizontal */
+    .dataTables_wrapper {
+        overflow-x: hidden !important;
+    }
+    
+    .dataTables_scrollHead,
+    .dataTables_scrollBody {
+        overflow-x: hidden !important;
+    }
+    
+    table.dataTable {
+        width: 100% !important;
+        table-layout: fixed;
+    }
+    
+    table.dataTable th,
+    table.dataTable td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    @media (max-width: 768px) {
+        table.dataTable th,
+        table.dataTable td {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.25rem;
+        }
     }
 </style>
 
@@ -550,9 +591,20 @@ function loadExpenseTable() {
         processing: true,
         serverSide: false,
         responsive: true,
+        scrollX: false,
+        autoWidth: false,
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
         },
+        columnDefs: [
+            { width: "8%", targets: 0 },   // ID
+            { width: "12%", targets: 1 },  // Fecha
+            { width: "25%", targets: 2 },  // Descripción
+            { width: "15%", targets: 3 },  // Categoría
+            { width: "15%", targets: 4 },  // Método de Pago
+            { width: "15%", targets: 5 },  // Monto
+            { width: "10%", targets: 6, orderable: false, searchable: false }   // Acciones
+        ],
         ajax: {
             url: `controllers/controller.php?action=list&mes=${mes}&ano=${ano}`,
             type: "GET",

@@ -127,7 +127,7 @@ function getAllIncomes($pdo, $user_id) {
         $sql = "
             SELECT 
                 i.id,
-                i.fecha,
+                DATE_FORMAT(i.fecha, '%Y-%m-%d') as fecha,
                 i.descripcion,
                 i.monto,
                 c.nombre as categoria,
@@ -149,7 +149,7 @@ function getAllIncomes($pdo, $user_id) {
             $params[] = $mes;
         }
         
-        $sql .= " ORDER BY i.fecha DESC, i.created_at DESC";
+        $sql .= " ORDER BY i.fecha DESC, i.id ASC";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
@@ -324,7 +324,7 @@ function getIncomeDetails($pdo, $user_id, $id) {
         $stmt = $pdo->prepare("
             SELECT 
                 i.id,
-                i.fecha,
+                DATE_FORMAT(i.fecha, '%Y-%m-%d') as fecha,
                 i.descripcion,
                 i.monto,
                 i.categoria_id,
@@ -380,8 +380,69 @@ function updateIncome($pdo, $user_id, $id, $data) {
             return;
         }
         
-        // Validar datos (similar a createIncome)
-        // ... validaciones ...
+        // Validar datos requeridos
+        if (!isset($data['fecha']) || !isset($data['categoria_id']) || !isset($data['descripcion']) || 
+            !isset($data['monto']) || !isset($data['metodo_pago_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Faltan campos requeridos']);
+            return;
+        }
+        
+        // Validar y limpiar datos
+        $fecha = trim($data['fecha']);
+        $categoria_id = (int)$data['categoria_id'];
+        $descripcion = trim($data['descripcion']);
+        $monto = floatval($data['monto']);
+        $metodo_pago_id = (int)$data['metodo_pago_id'];
+        
+        // Validaciones específicas
+        if (empty($fecha) || !strtotime($fecha)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Fecha no válida']);
+            return;
+        }
+        
+        if ($categoria_id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Debe seleccionar una categoría válida']);
+            return;
+        }
+        
+        if (empty($descripcion) || strlen($descripcion) > 255) {
+            http_response_code(400);
+            echo json_encode(['error' => 'La descripción es requerida y no debe exceder 255 caracteres']);
+            return;
+        }
+        
+        if ($monto <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El monto debe ser mayor a 0']);
+            return;
+        }
+        
+        if ($metodo_pago_id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Debe seleccionar un método de pago válido']);
+            return;
+        }
+        
+        // Verificar que la categoría existe y es de tipo ingreso
+        $stmt = $pdo->prepare("SELECT id FROM categorias WHERE id = ? AND tipo = 'ingreso' AND activo = 1");
+        $stmt->execute([$categoria_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Categoría no válida']);
+            return;
+        }
+        
+        // Verificar que el método de pago existe y está activo
+        $stmt = $pdo->prepare("SELECT id FROM metodos_pago WHERE id = ? AND activo = 1");
+        $stmt->execute([$metodo_pago_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Método de pago no válido']);
+            return;
+        }
         
         // Actualizar ingreso
         $stmt = $pdo->prepare("
@@ -391,11 +452,11 @@ function updateIncome($pdo, $user_id, $id, $data) {
         ");
         
         $stmt->execute([
-            $data['fecha'],
-            $data['categoria_id'],
-            $data['descripcion'],
-            $data['monto'],
-            $data['metodo_pago_id'],
+            $fecha,
+            $categoria_id,
+            $descripcion,
+            $monto,
+            $metodo_pago_id,
             $id,
             $user_id
         ]);
