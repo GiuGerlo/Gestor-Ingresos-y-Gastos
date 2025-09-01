@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-// Configurar zona horaria Argentina
-date_default_timezone_set('America/Argentina/Buenos_Aires');
-
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../index.php');
@@ -962,8 +959,14 @@ function loadIncomeTable() {
     
     // Obtener parámetros de URL para el filtro
     const urlParams = new URLSearchParams(window.location.search);
-    const mes = urlParams.get("mes") || "<?php echo $mes_seleccionado; ?>";
-    const ano = urlParams.get("ano") || "<?php echo $ano_seleccionado; ?>";
+    let mes = urlParams.get("mes");
+    let ano = urlParams.get("ano");
+    // Si no hay parámetros, usar el mes y año actual
+    if (!mes || !ano) {
+        const fecha = new Date();
+        mes = (fecha.getMonth() + 1).toString(); // getMonth es 0-index
+        ano = fecha.getFullYear().toString();
+    }
     
     $("#incomesTable").DataTable({
         processing: true,

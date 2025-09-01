@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-// Configurar zona horaria Argentina
-date_default_timezone_set('America/Argentina/Buenos_Aires');
-
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../index.php');
@@ -327,7 +324,6 @@ $user_id = $_SESSION['user_id'];
                                             <th>Nombre</th>
                                             <th>Monto</th>
                                             <th>Cuotas</th>
-                                            <th>Estado</th>
                                             <th>Próximo Pago</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -359,7 +355,7 @@ $user_id = $_SESSION['user_id'];
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4" style="margin-bottom: 5rem;">
                         <div class="card text-center">
                             <div class="card-body">
                                 <h5 class="card-title text-warning">Con Cuotas</h5>
@@ -637,10 +633,6 @@ $user_id = $_SESSION['user_id'];
                             <strong>Día del Mes:</strong>
                             <p id="view_dia_mes" class="mb-2"></p>
                         </div>
-                        <div class="col-md-6">
-                            <strong>Estado:</strong>
-                            <p id="view_estado" class="mb-2"></p>
-                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -707,7 +699,7 @@ $user_id = $_SESSION['user_id'];
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 },
-                order: [[0, 'desc']], // Ordenar por fecha de inicio (más recientes primero)
+                order: [[1, 'asc']], // Ordenar por día del mes (ascendente)
                 columnDefs: [
                     { orderable: false, targets: -1 }, // Última columna (acciones) no ordenable
                     { responsivePriority: 1, targets: 2 }, // Nombre siempre visible
@@ -792,13 +784,20 @@ $user_id = $_SESSION['user_id'];
                 const nextPayment = calculateNextPayment(expense);
                 const quotaInfo = getQuotaInfo(expense);
                 
+                // Formatear fecha de inicio a dd/mm/yyyy
+                function formatFecha(fechaStr) {
+                    if (!fechaStr) return '';
+                    const parts = fechaStr.split('-');
+                    if (parts.length !== 3) return fechaStr;
+                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+
                 fixedExpensesTable.row.add([
-                    `<small>${new Date(expense.fecha_inicio).toLocaleDateString('es-AR')}</small>`,
+                    `<small>${formatFecha(expense.fecha_inicio)}</small>`,
                     `<span class="day-highlight">${expense.dia_mes}</span>`,
                     expense.nombre,
                     `<strong>$${parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong>`,
                     quotaInfo,
-                    statusBadge,
                     nextPayment,
                     getActionButtons(expense.id, expense.nombre)
                 ]);
@@ -836,6 +835,14 @@ $user_id = $_SESSION['user_id'];
             const nextPayment = calculateNextPayment(expense);
             const quotaInfo = getQuotaInfo(expense);
             
+            // Formatear fecha de inicio a dd/mm/yyyy
+            function formatFecha(fechaStr) {
+                if (!fechaStr) return '';
+                const parts = fechaStr.split('-');
+                if (parts.length !== 3) return fechaStr;
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
             return `
                 <div class="mobile-card" data-search="${expense.nombre.toLowerCase()} ${expense.dia_mes}">
                     <div class="mobile-card-header">
@@ -845,7 +852,7 @@ $user_id = $_SESSION['user_id'];
                     <div class="mobile-card-body">
                         <div class="mobile-card-info">
                             <i class="fas fa-play-circle"></i>
-                            <span>Inicio: ${new Date(expense.fecha_inicio).toLocaleDateString('es-AR')}</span>
+                            <span>Inicio: ${formatFecha(expense.fecha_inicio)}</span>
                         </div>
                         <div class="mobile-card-info">
                             <i class="fas fa-calendar-day"></i>
@@ -858,10 +865,6 @@ $user_id = $_SESSION['user_id'];
                         <div class="mobile-card-info">
                             <i class="fas fa-list-ol"></i>
                             <span>${quotaInfo}</span>
-                        </div>
-                        <div class="mobile-card-info">
-                            <i class="fas fa-info-circle"></i>
-                            <span>${statusBadge}</span>
                         </div>
                         <div class="mobile-card-actions">
                             <button type="button" class="btn btn-outline-primary btn-mobile" onclick="viewFixedExpense(${expense.id})">
@@ -1079,7 +1082,6 @@ $user_id = $_SESSION['user_id'];
                         $('#view_fecha_inicio').text(expense.fecha_inicio ? new Date(expense.fecha_inicio).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_fecha_fin').text(expense.fecha_fin ? new Date(expense.fecha_fin).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_dia_mes').html(`<span class="day-highlight">${expense.dia_mes}</span>`);
-                        $('#view_estado').html(getStatusBadge(expense));
                         $('#view_cuotas_restantes').text(expense.cuotas_restantes || 'Sin límite');
                         $('#view_mes_ultima_cuota').text(expense.mes_ultima_cuota || 'N/A');
                         $('#view_proximo_pago').text(calculateNextPayment(expense));
