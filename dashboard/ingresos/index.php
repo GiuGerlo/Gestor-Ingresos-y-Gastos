@@ -1026,21 +1026,37 @@ function loadIncomeTable() {
             {
                 data: "categoria",
                 render: function(data, type, row) {
-                    if (type === 'display') {
-                        return `<span class="badge bg-primary">${data}</span>`;
+                    if (type === "display") {
+                        const iconClass = row.icono_categoria || "fas fa-folder";
+                        return `
+                            <div class="d-flex align-items-center">
+                                <div class="income-icon bg-primary me-2">
+                                    <i class="${iconClass} text-white"></i>
+                                </div>
+                                <span class="badge bg-primary">${data}</span>
+                            </div>
+                        `;
                     }
                     // Para ordenamiento, usar categoría + ID
-                    return data + '_' + String(row.id).padStart(10, '0');
+                    return data + "_" + String(row.id).padStart(10, "0");
                 }
             },
             {
                 data: "metodo_pago",
                 render: function(data, type, row) {
-                    if (type === 'display') {
-                        return `<span class="badge" style="background-color: ${row.color_metodo};">${data}</span>`;
+                    if (type === "display") {
+                        const iconClass = row.icono_metodo || "fas fa-credit-card";
+                        return `
+                            <div class="d-flex align-items-center">
+                                <div class="income-icon me-2" style="background-color: ${row.color_metodo};">
+                                    <i class="${iconClass} text-white"></i>
+                                </div>
+                                <span class="badge" style="background-color: ${row.color_metodo};">${data}</span>
+                            </div>
+                        `;
                     }
                     // Para ordenamiento, usar método de pago + ID
-                    return data + '_' + String(row.id).padStart(10, '0');
+                    return data + "_" + String(row.id).padStart(10, "0");
                 }
             },
             {
@@ -1151,8 +1167,14 @@ function renderMobileCards(data) {
                 </div>
                 <div class="mobile-income-description">${income.descripcion}</div>
                 <div class="mobile-income-details">
-                    <span class="badge bg-primary mobile-income-badge">${income.categoria}</span>
-                    <span class="badge mobile-income-badge" style="background-color: ${income.color_metodo};">${income.metodo_pago}</span>
+                    <span class="badge bg-primary mobile-income-badge">
+                        <i class="${income.icono_categoria || 'fas fa-folder'} me-1"></i>
+                        ${income.categoria}
+                    </span>
+                    <span class="badge mobile-income-badge" style="background-color: ${income.color_metodo};">
+                        <i class="${income.icono_metodo || 'fas fa-credit-card'} me-1"></i>
+                        ${income.metodo_pago}
+                    </span>
                 </div>
             </div>
         `;

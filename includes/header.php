@@ -29,7 +29,7 @@ if (strpos($current_dir, '/dashboard/') !== false && substr_count($current_dir, 
 
 // Configurar título por defecto si no está definido
 if (!isset($page_title)) {
-    $page_title = 'Gestor de Finanzas';
+    $page_title = 'Ahorrito';
 }
 
 // Configurar página actual si no está definida
@@ -48,11 +48,11 @@ if (!isset($current_page)) {
     <meta name="description" content="Sistema de gestión de finanzas personales - Control completo de ingresos, gastos y gastos fijos">
     <meta name="keywords" content="finanzas, gastos, ingresos, presupuesto, argentina">
     <meta name="author" content="Sistema de Finanzas">
-    <title><?= htmlspecialchars($page_title) ?> - Gestor de Finanzas</title>
+    <title><?= htmlspecialchars($page_title) ?> - Ahorritoo</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?= $base_path ?>assets/img/logo.png" type="image/x-icon">
-    <link rel="icon" href="<?= $base_path ?>assets/img/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="<?= $base_path ?>assets/img/logo-completo.png" type="image/x-icon">
+    <link rel="icon" href="<?= $base_path ?>assets/img/logo-original.png" type="image/x-icon">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

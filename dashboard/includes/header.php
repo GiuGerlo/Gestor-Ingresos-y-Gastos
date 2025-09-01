@@ -38,12 +38,12 @@ if ($current_dir !== 'dashboard' && $current_script === 'index') {
     $page_key = $current_dir;
 }
 
-$title_info = $page_titles[$page_key] ?? ['Gestor de Finanzas', 'fas fa-home text-primary'];
+$title_info = $page_titles[$page_key] ?? ['Dashboard', 'fas fa-home text-primary'];
 $page_title = $title_info[0];
 $page_icon = $title_info[1];
 
 // Meta título para el navegador
-$browser_title = $page_title . ' - Gestor de Finanzas';
+$browser_title = $page_title . ' - Ahorritoo';
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +54,7 @@ $browser_title = $page_title . ' - Gestor de Finanzas';
     <title><?php echo $browser_title; ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="<?php echo $final_base_path; ?>../assets/img/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="<?php echo $final_base_path; ?>../assets/img/logo-original.png">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -68,7 +68,7 @@ $browser_title = $page_title . ' - Gestor de Finanzas';
     <!-- Meta tags para SEO y responsividad -->
     <meta name="description" content="Sistema de gestión de finanzas personales">
     <meta name="keywords" content="finanzas, gestión, ingresos, gastos, dashboard">
-    <meta name="author" content="Gestor de Finanzas">
+    <meta name="author" content="Ahorritoo">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- Configuración de tema -->

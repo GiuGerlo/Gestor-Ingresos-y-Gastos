@@ -54,13 +54,14 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
 <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
     <div class="sidebar-sticky">
         <div class="text-center mb-4 pt-3">
+            <img src="../../assets/img/logo-original.png" alt="Ahorrito Logo" style="width:48px;height:48px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;">
             <?php if ($user_rol === 'superadmin'): ?>
                 <h5 class="text-white">Panel Admin</h5>
                 <small class="text-light">
                     <?php echo htmlspecialchars($user_name); ?>
                 </small>
             <?php else: ?>
-                <h5 class="text-white">Gestor Finanzas</h5>
+                <h5 class="text-white">Ahorritoo</h5>
                 <small class="text-light">
                     <?php echo htmlspecialchars($user_name); ?>
                     <span class="badge bg-light text-primary ms-1">

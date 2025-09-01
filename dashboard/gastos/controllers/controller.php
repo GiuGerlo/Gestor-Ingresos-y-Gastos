@@ -134,7 +134,9 @@ function getAllExpenses($pdo, $user_id) {
                 g.descripcion,
                 g.monto,
                 c.nombre as categoria,
+                c.icono as icono_categoria,
                 mp.nombre as metodo_pago,
+                mp.icono as icono_metodo,
                 mp.color as color_metodo,
                 g.created_at
             FROM gastos g
@@ -410,7 +412,9 @@ function getExpenseDetails($pdo, $user_id, $id) {
                 g.categoria_id,
                 g.metodo_pago_id,
                 c.nombre as categoria,
+                c.icono as icono_categoria,
                 mp.nombre as metodo_pago,
+                mp.icono as icono_metodo,
                 mp.color as color_metodo,
                 g.created_at
             FROM gastos g

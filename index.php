@@ -241,10 +241,10 @@ include 'includes/header.php';
             <!-- Panel izquierdo - Información del sistema -->
             <div class="col-lg-5 login-left">
                 <div class="login-logo">
-                    <i class="fas fa-chart-line"></i>
+                    <img src="assets/img/logo-original.png" alt="Logo" style="width:100px;height:100px;object-fit:contain;border-radius:16px;background:rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:8px;">
                 </div>
                 
-                <h2 class="fw-bold mb-3">FinanzasPro</h2>
+                <h2 class="fw-bold mb-3">Ahorritoo</h2>
                 <p class="mb-4 text-center">
                     Sistema integral de gestión financiera personal. 
                     Controla tus ingresos, gastos y planifica tu futuro económico.
@@ -374,9 +374,9 @@ include 'includes/header.php';
                                 Recordarme
                             </label>
                         </div>
-                        <a href="#" class="text-decoration-none" onclick="mostrarAyuda()">
+                        <!-- <a href="#" class="text-decoration-none" onclick="mostrarAyuda()">
                             <small>¿Olvidaste tu contraseña?</small>
-                        </a>
+                        </a> -->
                     </div>
                     
                     <button type="submit" class="btn btn-login w-100 mb-4">
@@ -396,20 +396,20 @@ include 'includes/header.php';
                     </p>
                     
                     <!-- Credenciales de prueba -->
-                    <div class="alert alert-info">
+                    <!-- <div class="alert alert-info">
                         <strong><i class="fas fa-info-circle me-2"></i>Credenciales de prueba:</strong><br>
                         <small>
                             <strong>Superadmin:</strong> admin@gestorfinanzas.com / admin123<br>
                             <strong>Usuario:</strong> Crear cuenta nueva con el registro
                         </small>
-                    </div>
+                    </div> -->
                     
-                    <p class="text-muted">
+                    <!-- <p class="text-muted">
                         ¿No tienes cuenta? 
                         <a href="register.php" class="text-decoration-none fw-medium">
                             Regístrate aquí
                         </a>
-                    </p>
+                    </p> -->
                 </div>
             </div>
         </div>

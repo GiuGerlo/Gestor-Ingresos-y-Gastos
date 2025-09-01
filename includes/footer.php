@@ -76,7 +76,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                             <i class="fas fa-chart-line text-white"></i>
                         </div>
                         <h5 class="mb-0 fw-bold">
-                            <span class="text-dark">Finanzas</span><span class="text-secondary">Pro</span>
+                            <span class="text-dark">Ahorritoo</span>
                         </h5>
                     </div>
                     <p class="text-muted mb-3">
@@ -127,10 +127,11 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                         </li>
                         <?php else: ?>
                         <li class="mb-2">
-                            <a href="#features" class="footer-link">
-                                <i class="fas fa-star me-2"></i>Características
+                            <a href="index.php" class="footer-link">
+                                <i class="fas fa-star me-2"></i>Login
                             </a>
                         </li>
+                        <!-- 
                         <li class="mb-2">
                             <a href="#about" class="footer-link">
                                 <i class="fas fa-info-circle me-2"></i>Acerca de
@@ -140,7 +141,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                             <a href="register.php" class="footer-link">
                                 <i class="fas fa-user-plus me-2"></i>Registrarse
                             </a>
-                        </li>
+                        </li> -->
                         <?php endif; ?>
                     </ul>
                 </div>
@@ -248,7 +249,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
             <div class="row border-top pt-3 pb-2">
                 <div class="col-md-6">
                     <small class="text-muted">
-                        © <?= date('Y') ?> Gestor de Finanzas. Sistema desarrollado con dedicación.
+                        © <?= date('Y') ?> Ahorritoo. Sistema desarrollado con dedicación.
                     </small>
                 </div>
                 <div class="col-md-6 text-md-end">

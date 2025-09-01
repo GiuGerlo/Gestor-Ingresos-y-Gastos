@@ -1027,20 +1027,36 @@ function loadExpenseTable() {
                 data: "categoria",
                 render: function(data, type, row) {
                     if (type === 'display') {
-                        return `<span class="badge bg-primary">${data}</span>`;
+                        const iconClass = row.icono_categoria || "fas fa-folder";
+                        return `
+                            <div class="d-flex align-items-center">
+                                <div class="expense-icon bg-primary me-2">
+                                    <i class="${iconClass} text-white"></i>
+                                </div>
+                                <span class="badge bg-primary">${data}</span>
+                            </div>
+                        `;
                     }
                     // Para ordenamiento, usar categoría + ID
-                    return data + '_' + String(row.id).padStart(10, '0');
+                    return data + "_" + String(row.id).padStart(10, "0");
                 }
             },
             {
                 data: "metodo_pago",
                 render: function(data, type, row) {
-                    if (type === 'display') {
-                        return `<span class="badge" style="background-color: ${row.color_metodo};">${data}</span>`;
+                    if (type === "display") {
+                        const iconClass = row.icono_metodo || "fas fa-credit-card";
+                        return `
+                            <div class="d-flex align-items-center">
+                                <div class="expense-icon me-2" style="background-color: ${row.color_metodo};">
+                                    <i class="${iconClass} text-white"></i>
+                                </div>
+                                <span class="badge" style="background-color: ${row.color_metodo};">${data}</span>
+                            </div>
+                        `;
                     }
                     // Para ordenamiento, usar método de pago + ID
-                    return data + '_' + String(row.id).padStart(10, '0');
+                    return data + "_" + String(row.id).padStart(10, "0");
                 }
             },
             {
@@ -1151,8 +1167,14 @@ function renderMobileCards(data) {
                 </div>
                 <div class="mobile-expense-description">${expense.descripcion}</div>
                 <div class="mobile-expense-details">
-                    <span class="badge bg-primary mobile-expense-badge">${expense.categoria}</span>
-                    <span class="badge mobile-expense-badge" style="background-color: ${expense.color_metodo};">${expense.metodo_pago}</span>
+                    <span class="badge bg-primary mobile-expense-badge">
+                        <i class="${expense.icono_categoria || 'fas fa-folder'} me-1"></i>
+                        ${expense.categoria}
+                    </span>
+                    <span class="badge mobile-expense-badge" style="background-color: ${expense.color_metodo};">
+                        <i class="${expense.icono_metodo || 'fas fa-credit-card'} me-1"></i>
+                        ${expense.metodo_pago}
+                    </span>
                 </div>
             </div>
         `;

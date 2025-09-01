@@ -16,11 +16,12 @@ $user_id = $_SESSION['user_id'];
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gastos Fijos - Gestor de Finanzas</title>
-    
+    <title>Gastos Fijos - Ahorrito</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -30,15 +31,18 @@ $user_id = $_SESSION['user_id'];
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    
+
+    <link rel="icon" href="../../assets/img/logo-original.png" type="image/x-icon">
+
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="../../assets/css/style.css">
-    
+
     <style>
         :root {
             --primary-color: #292929;
             --secondary-color: #6548D5;
-            --fixed-expense-color: #E91E63; /* Rosa para gastos fijos */
+            --fixed-expense-color: #E91E63;
+            /* Rosa para gastos fijos */
             --fixed-expense-light: #FCE4EC;
         }
 
@@ -72,12 +76,12 @@ $user_id = $_SESSION['user_id'];
             border-radius: 12px;
             margin-bottom: 15px;
             background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .mobile-card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
         }
 
@@ -169,21 +173,22 @@ $user_id = $_SESSION['user_id'];
             .desktop-view {
                 display: none !important;
             }
+
             .mobile-view {
                 display: block !important;
             }
-            
+
             .mobile-search-container {
                 margin-bottom: 20px;
             }
-            
+
             .mobile-search-input {
                 border-radius: 25px;
                 border: 2px solid var(--fixed-expense-color);
                 padding: 12px 20px;
                 font-size: 16px;
             }
-            
+
             .mobile-search-input:focus {
                 outline: none;
                 box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
@@ -194,6 +199,7 @@ $user_id = $_SESSION['user_id'];
             .desktop-view {
                 display: block !important;
             }
+
             .mobile-view {
                 display: none !important;
             }
@@ -214,32 +220,64 @@ $user_id = $_SESSION['user_id'];
         .dataTables_wrapper .dataTables_scrollBody {
             overflow-x: hidden !important;
         }
-        
+
         .dataTables_wrapper {
             overflow-x: hidden !important;
         }
-        
+
         /* Contenedor de tabla sin scroll */
         .table-container {
             overflow: hidden !important;
             width: 100%;
         }
-        
+
         /* Asegurar que la tabla se ajuste */
         .table-fixed-expenses {
             width: 100% !important;
             table-layout: auto;
         }
-        
+
         /* Optimizar ancho de columnas */
-        .table-fixed-expenses th:nth-child(1) { width: 12%; } /* Fecha Inicio */
-        .table-fixed-expenses th:nth-child(2) { width: 8%; }  /* Día */
-        .table-fixed-expenses th:nth-child(3) { width: 20%; } /* Nombre */
-        .table-fixed-expenses th:nth-child(4) { width: 12%; } /* Monto */
-        .table-fixed-expenses th:nth-child(5) { width: 12%; } /* Cuotas */
-        .table-fixed-expenses th:nth-child(6) { width: 10%; } /* Estado */
-        .table-fixed-expenses th:nth-child(7) { width: 14%; } /* Próximo Pago */
-        .table-fixed-expenses th:nth-child(8) { width: 12%; } /* Acciones */
+        .table-fixed-expenses th:nth-child(1) {
+            width: 12%;
+        }
+
+        /* Fecha Inicio */
+        .table-fixed-expenses th:nth-child(2) {
+            width: 8%;
+        }
+
+        /* Día */
+        .table-fixed-expenses th:nth-child(3) {
+            width: 20%;
+        }
+
+        /* Nombre */
+        .table-fixed-expenses th:nth-child(4) {
+            width: 12%;
+        }
+
+        /* Monto */
+        .table-fixed-expenses th:nth-child(5) {
+            width: 12%;
+        }
+
+        /* Cuotas */
+        .table-fixed-expenses th:nth-child(6) {
+            width: 10%;
+        }
+
+        /* Estado */
+        .table-fixed-expenses th:nth-child(7) {
+            width: 14%;
+        }
+
+        /* Próximo Pago */
+        .table-fixed-expenses th:nth-child(8) {
+            width: 12%;
+        }
+
+        /* Acciones */
 
         /* Alertas de próximos vencimientos */
         .alert-next-payment {
@@ -299,10 +337,10 @@ $user_id = $_SESSION['user_id'];
                 <div class="mobile-view">
                     <!-- Buscador móvil -->
                     <div class="mobile-search-container">
-                        <input type="text" 
-                               id="mobileSearch" 
-                               class="form-control mobile-search-input" 
-                               placeholder="Buscar por nombre o día del mes...">
+                        <input type="text"
+                            id="mobileSearch"
+                            class="form-control mobile-search-input"
+                            placeholder="Buscar por nombre o día del mes...">
                     </div>
 
                     <!-- Contenedor de cards -->
@@ -384,19 +422,19 @@ $user_id = $_SESSION['user_id'];
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="add_fecha_inicio" class="form-label">Fecha de Inicio *</label>
-                                <input type="date" 
-                                       class="form-control" 
-                                       id="add_fecha_inicio" 
-                                       name="fecha_inicio" 
-                                       value="<?php echo date('Y-m-d'); ?>"
-                                       required>
+                                <input type="date"
+                                    class="form-control"
+                                    id="add_fecha_inicio"
+                                    name="fecha_inicio"
+                                    value="<?php echo date('Y-m-d'); ?>"
+                                    required>
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="add_dia_mes" class="form-label">Día del Mes *</label>
                                 <select class="form-select" id="add_dia_mes" name="dia_mes" required>
                                     <option value="">Seleccionar día...</option>
-                                    <?php for($i = 1; $i <= 31; $i++): ?>
+                                    <?php for ($i = 1; $i <= 31; $i++): ?>
                                         <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
                                     <?php endfor; ?>
                                 </select>
@@ -408,45 +446,45 @@ $user_id = $_SESSION['user_id'];
                                 <label for="add_monto" class="form-label">Monto *</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" 
-                                           class="form-control" 
-                                           id="add_monto" 
-                                           name="monto" 
-                                           step="0.01" 
-                                           min="0.01" 
-                                           required>
+                                    <input type="number"
+                                        class="form-control"
+                                        id="add_monto"
+                                        name="monto"
+                                        step="0.01"
+                                        min="0.01"
+                                        required>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="add_nombre" class="form-label">Nombre del Gasto *</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="add_nombre" 
-                                       name="nombre" 
-                                       placeholder="Ej: Alquiler, Netflix, Gimnasio..." 
-                                       required>
+                                <input type="text"
+                                    class="form-control"
+                                    id="add_nombre"
+                                    name="nombre"
+                                    placeholder="Ej: Alquiler, Netflix, Gimnasio..."
+                                    required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="add_cuotas_restantes" class="form-label">Cuotas Restantes</label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="add_cuotas_restantes" 
-                                       name="cuotas_restantes" 
-                                       min="1" 
-                                       placeholder="Dejar vacío para sin límite">
+                                <input type="number"
+                                    class="form-control"
+                                    id="add_cuotas_restantes"
+                                    name="cuotas_restantes"
+                                    min="1"
+                                    placeholder="Dejar vacío para sin límite">
                                 <small class="text-muted">Si no especificas, será un gasto fijo indefinido</small>
                             </div>
-                            
+
                             <div class="col-md-6 mb-3" id="fechaFinContainer" style="display: none;">
                                 <label for="add_fecha_fin" class="form-label">Fecha de Fin (Opcional)</label>
-                                <input type="date" 
-                                       class="form-control" 
-                                       id="add_fecha_fin" 
-                                       name="fecha_fin">
+                                <input type="date"
+                                    class="form-control"
+                                    id="add_fecha_fin"
+                                    name="fecha_fin">
                                 <small class="text-muted">Solo para gastos con cuotas limitadas</small>
                             </div>
                         </div>
@@ -454,19 +492,19 @@ $user_id = $_SESSION['user_id'];
                         <div class="row" id="lastQuotaContainer" style="display: none;">
                             <div class="col-md-6 mb-3">
                                 <label for="add_mes_ultima_cuota" class="form-label">Mes de Última Cuota</label>
-                                <input type="month" 
-                                       class="form-control" 
-                                       id="add_mes_ultima_cuota" 
-                                       name="mes_ultima_cuota">
+                                <input type="month"
+                                    class="form-control"
+                                    id="add_mes_ultima_cuota"
+                                    name="mes_ultima_cuota">
                             </div>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" 
-                                   type="checkbox" 
-                                   id="add_activo" 
-                                   name="activo" 
-                                   checked>
+                            <input class="form-check-input"
+                                type="checkbox"
+                                id="add_activo"
+                                name="activo"
+                                checked>
                             <label class="form-check-label" for="add_activo">
                                 Activar inmediatamente
                             </label>
@@ -501,18 +539,18 @@ $user_id = $_SESSION['user_id'];
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="edit_fecha_inicio" class="form-label">Fecha de Inicio *</label>
-                                <input type="date" 
-                                       class="form-control" 
-                                       id="edit_fecha_inicio" 
-                                       name="fecha_inicio" 
-                                       required>
+                                <input type="date"
+                                    class="form-control"
+                                    id="edit_fecha_inicio"
+                                    name="fecha_inicio"
+                                    required>
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="edit_dia_mes" class="form-label">Día del Mes *</label>
                                 <select class="form-select" id="edit_dia_mes" name="dia_mes" required>
                                     <option value="">Seleccionar día...</option>
-                                    <?php for($i = 1; $i <= 31; $i++): ?>
+                                    <?php for ($i = 1; $i <= 31; $i++): ?>
                                         <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
                                     <?php endfor; ?>
                                 </select>
@@ -524,61 +562,61 @@ $user_id = $_SESSION['user_id'];
                                 <label for="edit_monto" class="form-label">Monto *</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" 
-                                           class="form-control" 
-                                           id="edit_monto" 
-                                           name="monto" 
-                                           step="0.01" 
-                                           min="0.01" 
-                                           required>
+                                    <input type="number"
+                                        class="form-control"
+                                        id="edit_monto"
+                                        name="monto"
+                                        step="0.01"
+                                        min="0.01"
+                                        required>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="edit_nombre" class="form-label">Nombre del Gasto *</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="edit_nombre" 
-                                       name="nombre" 
-                                       required>
+                                <input type="text"
+                                    class="form-control"
+                                    id="edit_nombre"
+                                    name="nombre"
+                                    required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="edit_cuotas_restantes" class="form-label">Cuotas Restantes</label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="edit_cuotas_restantes" 
-                                       name="cuotas_restantes" 
-                                       min="1" 
-                                       placeholder="Dejar vacío para sin límite">
+                                <input type="number"
+                                    class="form-control"
+                                    id="edit_cuotas_restantes"
+                                    name="cuotas_restantes"
+                                    min="1"
+                                    placeholder="Dejar vacío para sin límite">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3" id="editFechaFinContainer" style="display: none;">
                                 <label for="edit_fecha_fin" class="form-label">Fecha de Fin (Opcional)</label>
-                                <input type="date" 
-                                       class="form-control" 
-                                       id="edit_fecha_fin" 
-                                       name="fecha_fin">
+                                <input type="date"
+                                    class="form-control"
+                                    id="edit_fecha_fin"
+                                    name="fecha_fin">
                             </div>
                         </div>
 
                         <div class="row" id="editLastQuotaContainer" style="display: none;">
                             <div class="col-md-6 mb-3">
                                 <label for="edit_mes_ultima_cuota" class="form-label">Mes de Última Cuota</label>
-                                <input type="month" 
-                                       class="form-control" 
-                                       id="edit_mes_ultima_cuota" 
-                                       name="mes_ultima_cuota">
+                                <input type="month"
+                                    class="form-control"
+                                    id="edit_mes_ultima_cuota"
+                                    name="mes_ultima_cuota">
                             </div>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" 
-                                   type="checkbox" 
-                                   id="edit_activo" 
-                                   name="activo">
+                            <input class="form-check-input"
+                                type="checkbox"
+                                id="edit_activo"
+                                name="activo">
                             <label class="form-check-label" for="edit_activo">
                                 Gasto activo
                             </label>
@@ -699,14 +737,33 @@ $user_id = $_SESSION['user_id'];
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 },
-                order: [[1, 'asc']], // Ordenar por día del mes (ascendente)
-                columnDefs: [
-                    { orderable: false, targets: -1 }, // Última columna (acciones) no ordenable
-                    { responsivePriority: 1, targets: 2 }, // Nombre siempre visible
-                    { responsivePriority: 2, targets: 3 }, // Monto siempre visible
-                    { responsivePriority: 3, targets: 1 }, // Día del mes siempre visible
-                    { responsivePriority: 4, targets: -1 }, // Acciones siempre visibles
-                    { responsivePriority: 5, targets: 0 } // Fecha inicio visible cuando sea posible
+                order: [
+                    [1, 'asc']
+                ], // Ordenar por día del mes (ascendente)
+                columnDefs: [{
+                        orderable: false,
+                        targets: -1
+                    }, // Última columna (acciones) no ordenable
+                    {
+                        responsivePriority: 1,
+                        targets: 2
+                    }, // Nombre siempre visible
+                    {
+                        responsivePriority: 2,
+                        targets: 3
+                    }, // Monto siempre visible
+                    {
+                        responsivePriority: 3,
+                        targets: 1
+                    }, // Día del mes siempre visible
+                    {
+                        responsivePriority: 4,
+                        targets: -1
+                    }, // Acciones siempre visibles
+                    {
+                        responsivePriority: 5,
+                        targets: 0
+                    } // Fecha inicio visible cuando sea posible
                 ],
                 scrollX: false, // Desactivar scroll horizontal
                 autoWidth: false // Desactivar auto width
@@ -717,10 +774,10 @@ $user_id = $_SESSION['user_id'];
             // Form submit events
             $('#addFixedExpenseForm').on('submit', handleAddFixedExpense);
             $('#editFixedExpenseForm').on('submit', handleEditFixedExpense);
-            
+
             // Mobile search
             $('#mobileSearch').on('input', handleMobileSearch);
-            
+
             // Cuotas restantes change events
             $('#add_cuotas_restantes').on('input', toggleLastQuotaField);
             $('#edit_cuotas_restantes').on('input', toggleLastQuotaFieldEdit);
@@ -758,7 +815,9 @@ $user_id = $_SESSION['user_id'];
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'GET',
-                data: { action: 'list' },
+                data: {
+                    action: 'list'
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
@@ -778,12 +837,12 @@ $user_id = $_SESSION['user_id'];
 
         function updateDesktopTable(data) {
             fixedExpensesTable.clear();
-            
+
             data.forEach(function(expense) {
                 const statusBadge = getStatusBadge(expense);
                 const nextPayment = calculateNextPayment(expense);
                 const quotaInfo = getQuotaInfo(expense);
-                
+
                 // Formatear fecha de inicio a dd/mm/yyyy
                 function formatFecha(fechaStr) {
                     if (!fechaStr) return '';
@@ -802,14 +861,14 @@ $user_id = $_SESSION['user_id'];
                     getActionButtons(expense.id, expense.nombre)
                 ]);
             });
-            
+
             fixedExpensesTable.draw();
         }
 
         function updateMobileCards(data) {
             const container = $('#mobileCardsContainer');
             container.empty();
-            
+
             if (data.length === 0) {
                 container.html(`
                     <div class="text-center py-5">
@@ -823,7 +882,7 @@ $user_id = $_SESSION['user_id'];
                 `);
                 return;
             }
-            
+
             data.forEach(function(expense) {
                 const card = createMobileCard(expense);
                 container.append(card);
@@ -834,7 +893,7 @@ $user_id = $_SESSION['user_id'];
             const statusBadge = getStatusBadge(expense);
             const nextPayment = calculateNextPayment(expense);
             const quotaInfo = getQuotaInfo(expense);
-            
+
             // Formatear fecha de inicio a dd/mm/yyyy
             function formatFecha(fechaStr) {
                 if (!fechaStr) return '';
@@ -886,22 +945,22 @@ $user_id = $_SESSION['user_id'];
             if (!expense.activo) {
                 return '<span class="status-badge status-inactive">Inactivo</span>';
             }
-            
+
             // Si no hay cuotas restantes o es 0, está finalizado
             if (!expense.cuotas_restantes || expense.cuotas_restantes == 0) {
                 return '<span class="status-badge status-inactive">Finalizado</span>';
             }
-            
+
             // Si solo queda 1 cuota
             if (expense.cuotas_restantes == 1) {
                 return '<span class="status-badge status-ending">Última Cuota</span>';
             }
-            
+
             // Si quedan 2-3 cuotas, está finalizando
             if (expense.cuotas_restantes <= 3) {
                 return '<span class="status-badge status-ending">Finalizando</span>';
             }
-            
+
             return '<span class="status-badge status-active">Activo</span>';
         }
 
@@ -909,7 +968,7 @@ $user_id = $_SESSION['user_id'];
             if (!expense.cuotas_restantes) {
                 return '<span class="text-muted">Sin límite</span>';
             }
-            
+
             return `<span class="quota-info">${expense.cuotas_restantes} cuotas restantes</span>`;
         }
 
@@ -918,10 +977,10 @@ $user_id = $_SESSION['user_id'];
             const currentDay = today.getDate();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
-            
+
             let nextPaymentMonth = currentMonth;
             let nextPaymentYear = currentYear;
-            
+
             if (currentDay >= expense.dia_mes) {
                 nextPaymentMonth++;
                 if (nextPaymentMonth > 11) {
@@ -929,11 +988,12 @@ $user_id = $_SESSION['user_id'];
                     nextPaymentYear++;
                 }
             }
-            
+
             const nextPayment = new Date(nextPaymentYear, nextPaymentMonth, expense.dia_mes);
             const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+
             return `${expense.dia_mes} de ${monthNames[nextPaymentMonth]} ${nextPaymentYear}`;
         }
 
@@ -957,8 +1017,10 @@ $user_id = $_SESSION['user_id'];
             const totalMonthly = data.filter(e => e.activo).reduce((sum, e) => sum + parseFloat(e.monto), 0);
             const activeCount = data.filter(e => e.activo).length;
             const withQuotasCount = data.filter(e => e.cuotas_restantes).length;
-            
-            $('#totalMonthly').text('$' + totalMonthly.toLocaleString('es-AR', {minimumFractionDigits: 2}));
+
+            $('#totalMonthly').text('$' + totalMonthly.toLocaleString('es-AR', {
+                minimumFractionDigits: 2
+            }));
             $('#activeCount').text(activeCount);
             $('#withQuotasCount').text(withQuotasCount);
         }
@@ -966,18 +1028,18 @@ $user_id = $_SESSION['user_id'];
         function checkNextPayments() {
             const today = new Date();
             const currentDay = today.getDate();
-            
+
             const upcomingPayments = fixedExpensesData.filter(expense => {
                 if (!expense.activo) return false;
-                
+
                 const daysUntilPayment = expense.dia_mes - currentDay;
                 return daysUntilPayment >= 0 && daysUntilPayment <= 3;
             });
-            
+
             if (upcomingPayments.length > 0) {
                 const alert = $('#nextPaymentsAlert');
                 const list = $('#nextPaymentsList');
-                
+
                 let paymentsList = '<ul class="mb-0 mt-2">';
                 upcomingPayments.forEach(payment => {
                     const daysLeft = payment.dia_mes - currentDay;
@@ -985,7 +1047,7 @@ $user_id = $_SESSION['user_id'];
                     paymentsList += `<li><strong>${payment.nombre}</strong> - $${parseFloat(payment.monto).toLocaleString('es-AR', {minimumFractionDigits: 2})} (${urgency})</li>`;
                 });
                 paymentsList += '</ul>';
-                
+
                 list.html(paymentsList);
                 alert.removeClass('d-none');
             }
@@ -993,12 +1055,12 @@ $user_id = $_SESSION['user_id'];
 
         function handleMobileSearch() {
             const searchTerm = $('#mobileSearch').val().toLowerCase();
-            
+
             if (searchTerm === '') {
                 $('.mobile-card').show();
                 return;
             }
-            
+
             $('.mobile-card').each(function() {
                 const searchData = $(this).data('search');
                 if (searchData.includes(searchTerm)) {
@@ -1011,10 +1073,10 @@ $user_id = $_SESSION['user_id'];
 
         function handleAddFixedExpense(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             formData.append('action', 'create');
-            
+
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'POST',
@@ -1041,10 +1103,10 @@ $user_id = $_SESSION['user_id'];
 
         function handleEditFixedExpense(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             formData.append('action', 'update');
-            
+
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'POST',
@@ -1071,14 +1133,19 @@ $user_id = $_SESSION['user_id'];
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'GET',
-                data: { action: 'details', id: id },
+                data: {
+                    action: 'details',
+                    id: id
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         const expense = response.data;
-                        
+
                         $('#view_nombre').text(expense.nombre);
-                        $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2}));
+                        $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {
+                            minimumFractionDigits: 2
+                        }));
                         $('#view_fecha_inicio').text(expense.fecha_inicio ? new Date(expense.fecha_inicio).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_fecha_fin').text(expense.fecha_fin ? new Date(expense.fecha_fin).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_dia_mes').html(`<span class="day-highlight">${expense.dia_mes}</span>`);
@@ -1087,7 +1154,7 @@ $user_id = $_SESSION['user_id'];
                         $('#view_proximo_pago').text(calculateNextPayment(expense));
                         $('#view_created_at').text(new Date(expense.created_at).toLocaleString('es-AR'));
                         $('#view_updated_at').text(new Date(expense.updated_at).toLocaleString('es-AR'));
-                        
+
                         $('#viewFixedExpenseModal').modal('show');
                     } else {
                         showError('Error al cargar detalles: ' + response.error);
@@ -1103,12 +1170,15 @@ $user_id = $_SESSION['user_id'];
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'GET',
-                data: { action: 'details', id: id },
+                data: {
+                    action: 'details',
+                    id: id
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         const expense = response.data;
-                        
+
                         $('#edit_id').val(expense.id);
                         $('#edit_fecha_inicio').val(expense.fecha_inicio);
                         $('#edit_dia_mes').val(expense.dia_mes);
@@ -1118,10 +1188,10 @@ $user_id = $_SESSION['user_id'];
                         $('#edit_mes_ultima_cuota').val(expense.mes_ultima_cuota || '');
                         $('#edit_fecha_fin').val(expense.fecha_fin || '');
                         $('#edit_activo').prop('checked', expense.activo == 1);
-                        
+
                         // Toggle fields based on quota presence
                         toggleLastQuotaFieldEdit();
-                        
+
                         $('#editFixedExpenseModal').modal('show');
                     } else {
                         showError('Error al cargar datos: ' + response.error);
@@ -1168,7 +1238,10 @@ $user_id = $_SESSION['user_id'];
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'POST',
-                data: { action: 'delete', id: id },
+                data: {
+                    action: 'delete',
+                    id: id
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
@@ -1188,14 +1261,19 @@ $user_id = $_SESSION['user_id'];
             $.ajax({
                 url: 'controllers/controller.php',
                 method: 'GET',
-                data: { action: 'details', id: id },
+                data: {
+                    action: 'details',
+                    id: id
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         const expense = response.data;
-                        
+
                         $('#view_nombre').text(expense.nombre);
-                        $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {minimumFractionDigits: 2}));
+                        $('#view_monto').text('$' + parseFloat(expense.monto).toLocaleString('es-AR', {
+                            minimumFractionDigits: 2
+                        }));
                         $('#view_fecha_inicio').text(expense.fecha_inicio ? new Date(expense.fecha_inicio).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_fecha_fin').text(expense.fecha_fin ? new Date(expense.fecha_fin).toLocaleDateString('es-AR') : 'No definida');
                         $('#view_dia_mes').html(`<span class="day-highlight">${expense.dia_mes}</span>`);
@@ -1205,7 +1283,7 @@ $user_id = $_SESSION['user_id'];
                         $('#view_proximo_pago').text(calculateNextPayment(expense));
                         $('#view_created_at').text(new Date(expense.created_at).toLocaleString('es-AR'));
                         $('#view_updated_at').text(new Date(expense.updated_at).toLocaleString('es-AR'));
-                        
+
                         $('#viewFixedExpenseModal').modal('show');
                     } else {
                         showError('Error al cargar detalles: ' + response.error);
@@ -1232,7 +1310,10 @@ $user_id = $_SESSION['user_id'];
                     $.ajax({
                         url: 'controllers/controller.php',
                         method: 'POST',
-                        data: { action: 'delete', id: id },
+                        data: {
+                            action: 'delete',
+                            id: id
+                        },
                         dataType: 'json',
                         success: function(response) {
                             if (response.success) {
@@ -1291,4 +1372,5 @@ $user_id = $_SESSION['user_id'];
         }
     </script>
 </body>
+
 </html>

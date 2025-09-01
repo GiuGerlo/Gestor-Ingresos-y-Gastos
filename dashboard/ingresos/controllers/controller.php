@@ -131,7 +131,9 @@ function getAllIncomes($pdo, $user_id) {
                 i.descripcion,
                 i.monto,
                 c.nombre as categoria,
+                c.icono as icono_categoria,
                 mp.nombre as metodo_pago,
+                mp.icono as icono_metodo,
                 mp.color as color_metodo,
                 i.created_at
             FROM ingresos i
@@ -330,7 +332,9 @@ function getIncomeDetails($pdo, $user_id, $id) {
                 i.categoria_id,
                 i.metodo_pago_id,
                 c.nombre as categoria,
+                c.icono as icono_categoria,
                 mp.nombre as metodo_pago,
+                mp.icono as icono_metodo,
                 mp.color as color_metodo,
                 i.created_at
             FROM ingresos i
