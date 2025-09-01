@@ -21,8 +21,11 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Obtener el método HTTP
+// Obtener el método HTTP (manejar override para DELETE)
 $method = $_SERVER['REQUEST_METHOD'];
+if ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'DELETE') {
+    $method = 'DELETE';
+}
 $action = $_GET['action'] ?? '';
 
 try {
@@ -129,6 +132,7 @@ function getAllCategories($pdo) {
                 id,
                 nombre,
                 tipo,
+                icono,
                 activo,
                 created_at
             FROM categorias 
@@ -144,6 +148,7 @@ function getAllCategories($pdo) {
                 'id' => $categoria['id'],
                 'nombre' => $categoria['nombre'],
                 'tipo' => $categoria['tipo'],
+                'icono' => $categoria['icono'],
                 'activo' => (bool)$categoria['activo'],
                 'created_at' => $categoria['created_at'],
                 'created_at_formatted' => date('d/m/Y H:i', strtotime($categoria['created_at']))
@@ -211,7 +216,7 @@ function getCategoryDetails($pdo, $categoryId) {
     try {
         $stmt = $pdo->prepare("
             SELECT 
-                id, nombre, tipo, activo, created_at
+                id, nombre, tipo, icono, activo, created_at
             FROM categorias 
             WHERE id = ?
         ");
@@ -291,15 +296,21 @@ function createCategory($pdo, $data) {
         // Determinar estado activo (por defecto 1)
         $activo = isset($data['activo']) ? (int)$data['activo'] : 1;
         
+        // Determinar icono (por defecto según tipo)
+        $icono = isset($data['icono']) && !empty(trim($data['icono'])) 
+            ? trim($data['icono']) 
+            : ($data['tipo'] === 'ingreso' ? 'fas fa-plus-circle' : 'fas fa-minus-circle');
+        
         // Insertar categoría
         $stmt = $pdo->prepare("
-            INSERT INTO categorias (nombre, tipo, activo) 
-            VALUES (?, ?, ?)
+            INSERT INTO categorias (nombre, tipo, icono, activo) 
+            VALUES (?, ?, ?, ?)
         ");
         
         $stmt->execute([
             trim($data['nombre']),
             $data['tipo'],
+            $icono,
             $activo
         ]);
         
@@ -312,6 +323,7 @@ function createCategory($pdo, $data) {
                 'id' => $categoryId,
                 'nombre' => trim($data['nombre']),
                 'tipo' => $data['tipo'],
+                'icono' => $icono,
                 'activo' => $activo
             ]
         ]);
@@ -415,6 +427,11 @@ function updateCategory($pdo, $data, $categoryId) {
         if (isset($data['activo'])) {
             $fields[] = "activo = ?";
             $values[] = (int)$data['activo'];
+        }
+        
+        if (isset($data['icono'])) {
+            $fields[] = "icono = ?";
+            $values[] = trim($data['icono']);
         }
         
         if (empty($fields)) {

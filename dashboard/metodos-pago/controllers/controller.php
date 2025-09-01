@@ -15,8 +15,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'superadmin') {
 // Incluir conexión a la base de datos
 require_once '../../../config/connect.php';
 
-// Obtener el método HTTP y la acción
+// Obtener el método HTTP (manejar override para DELETE)
 $method = $_SERVER['REQUEST_METHOD'];
+if ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'DELETE') {
+    $method = 'DELETE';
+}
 $action = $_GET['action'] ?? '';
 
 // Configurar tipo de contenido para JSON
@@ -126,6 +129,7 @@ function getAllPaymentMethods($pdo) {
             SELECT 
                 id,
                 nombre,
+                icono,
                 color,
                 activo,
                 created_at
@@ -141,6 +145,7 @@ function getAllPaymentMethods($pdo) {
             $metodosFormatted[] = [
                 'id' => $metodo['id'],
                 'nombre' => $metodo['nombre'],
+                'icono' => $metodo['icono'],
                 'color' => $metodo['color'],
                 'activo' => (bool)$metodo['activo'],
                 'created_at' => $metodo['created_at'],
@@ -207,6 +212,7 @@ function getPaymentMethodDetails($pdo, $id) {
             SELECT 
                 id,
                 nombre,
+                icono,
                 color,
                 activo,
                 created_at
@@ -227,6 +233,7 @@ function getPaymentMethodDetails($pdo, $id) {
         $metodoFormatted = [
             'id' => $metodo['id'],
             'nombre' => $metodo['nombre'],
+            'icono' => $metodo['icono'],
             'color' => $metodo['color'],
             'activo' => (bool)$metodo['activo'],
             'created_at' => $metodo['created_at'],
@@ -275,14 +282,18 @@ function createPaymentMethod($pdo, $data) {
         
         // Insertar nuevo método de pago
         $stmt = $pdo->prepare("
-            INSERT INTO metodos_pago (nombre, color, activo, created_at) 
-            VALUES (?, ?, ?, NOW())
+            INSERT INTO metodos_pago (nombre, icono, color, activo, created_at) 
+            VALUES (?, ?, ?, ?, NOW())
         ");
         
         $activo = isset($data['activo']) ? ($data['activo'] == '1' || $data['activo'] === true ? 1 : 0) : 1;
+        $icono = isset($data['icono']) && !empty(trim($data['icono'])) 
+            ? trim($data['icono']) 
+            : 'fas fa-credit-card';
         
         $stmt->execute([
             $data['nombre'],
+            $icono,
             $data['color'],
             $activo
         ]);
@@ -358,14 +369,18 @@ function updatePaymentMethod($pdo, $id, $data) {
         // Actualizar método de pago
         $stmt = $pdo->prepare("
             UPDATE metodos_pago 
-            SET nombre = ?, color = ?, activo = ?
+            SET nombre = ?, icono = ?, color = ?, activo = ?
             WHERE id = ?
         ");
         
         $activo = isset($data['activo']) ? ($data['activo'] == '1' || $data['activo'] === true ? 1 : 0) : 1;
+        $icono = isset($data['icono']) && !empty(trim($data['icono'])) 
+            ? trim($data['icono']) 
+            : 'fas fa-credit-card';
         
         $stmt->execute([
             $data['nombre'],
+            $icono,
             $data['color'],
             $activo,
             $id
@@ -380,6 +395,7 @@ function updatePaymentMethod($pdo, $id, $data) {
             'data' => [
                 'id' => (int)$id,
                 'nombre' => $data['nombre'],
+                'icono' => $icono,
                 'color' => $data['color'],
                 'activo' => (bool)$activo
             ]

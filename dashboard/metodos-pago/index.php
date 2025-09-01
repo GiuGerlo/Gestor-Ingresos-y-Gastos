@@ -180,6 +180,9 @@ include '../includes/header.php';
 
                 <!-- Incluir modal para ver detalles del método de pago -->
                 <?php include 'templates/view_payment_method_modal.php'; ?>
+
+                <!-- Incluir selector de iconos -->
+                <?php include '../includes/icon_picker.php'; ?>
             </main>
         </div>
     </div>
@@ -327,11 +330,12 @@ $(document).ready(function() {
             {
                 data: "nombre",
                 render: function(data, type, row) {
+                    const iconClass = row.icono || "fas fa-credit-card";
                     return `
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-2" 
                                  style="background-color: ${row.color};">
-                                <i class="fas fa-credit-card text-white"></i>
+                                <i class="${iconClass} text-white"></i>
                             </div>
                             <div>
                                 <strong>${data}</strong>
@@ -556,6 +560,7 @@ $(document).ready(function() {
         const formData = new FormData(form);
         const paymentMethodData = {
             nombre: formData.get("nombre"),
+            icono: formData.get("icono") || "fas fa-credit-card",
             color: formData.get("color"),
             activo: formData.get("activo")
         };
@@ -614,6 +619,8 @@ $(document).ready(function() {
         // Resetear valores por defecto
         $("#addPaymentMethodStatus").val("1");
         $("#addPaymentMethodColor").val("#6548D5");
+        $("#addPaymentMethodIcon").val("fas fa-credit-card");
+        $("#addPaymentMethodIconPreview").html("<i class=\"fas fa-credit-card\"></i>");
     }
     
     // Resetear formulario cuando se cierra el modal
@@ -661,6 +668,11 @@ $(document).ready(function() {
         $("#editPaymentMethodColor").val(paymentMethod.color);
         $("#editPaymentMethodStatus").val(paymentMethod.activo ? "1" : "0");
         
+        // Actualizar campo de icono
+        const iconoActual = paymentMethod.icono || "fas fa-credit-card";
+        $("#editPaymentMethodIcon").val(iconoActual);
+        $("#editPaymentMethodIconPreview").html("<i class=\"" + iconoActual + "\"></i>");
+        
         // Limpiar validaciones previas
         $("#editPaymentMethodForm").removeClass("was-validated");
         $("#editPaymentMethodForm .form-control").removeClass("is-invalid is-valid");
@@ -688,6 +700,7 @@ $(document).ready(function() {
         const formData = new FormData(form);
         const paymentMethodData = {
             nombre: formData.get("nombre"),
+            icono: formData.get("icono") || "fas fa-credit-card",
             color: formData.get("color"),
             activo: formData.get("activo")
         };
@@ -746,6 +759,10 @@ $(document).ready(function() {
         form.classList.remove("was-validated");
         $("#editPaymentMethodForm .form-control").removeClass("is-invalid is-valid");
         $("#editPaymentMethodForm .form-select").removeClass("is-invalid is-valid");
+        
+        // Resetear icono por defecto
+        $("#editPaymentMethodIcon").val("fas fa-credit-card");
+        $("#editPaymentMethodIconPreview").html("<i class=\"fas fa-credit-card\"></i>");
     }
     
     // Resetear formulario cuando se cierra el modal de edición
@@ -858,7 +875,8 @@ $(document).ready(function() {
         // Enviar petición de eliminación
         $.ajax({
             url: `controllers/controller.php?action=delete&id=${paymentMethodId}`,
-            type: "DELETE",
+            type: "POST",
+            data: {_method: "DELETE"},
             success: function(response) {
                 if (response.success) {
                     // Éxito - cerrar modal y recargar tabla

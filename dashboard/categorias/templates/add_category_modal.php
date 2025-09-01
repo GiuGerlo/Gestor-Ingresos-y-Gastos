@@ -49,7 +49,28 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCategoryIcon" class="form-label">
+                                    <i class="fas fa-icons me-1"></i>
+                                    Icono
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <span id="addCategoryIconPreview">
+                                            <i class="fas fa-folder"></i>
+                                        </span>
+                                    </span>
+                                    <input type="text" class="form-control" id="addCategoryIcon" name="icono" 
+                                           value="fas fa-folder" readonly>
+                                    <button type="button" class="btn btn-outline-primary" onclick="openIconPicker('addCategoryIcon', 'addCategoryIconPreview', document.getElementById('addCategoryIcon').value)">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Haz clic en el botón para elegir un icono</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="addCategoryStatus" class="form-label">
                                     <i class="fas fa-toggle-on me-1"></i>

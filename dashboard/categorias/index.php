@@ -154,7 +154,7 @@ include '../includes/header.php';
                                 <thead class="table-dark">
                                     <tr>
                                         <th>ID</th>
-                                        <th>Nombre</th>
+                                        <th>Categoría</th>
                                         <th>Tipo</th>
                                         <th>Estado</th>
                                         <th>Registrada</th>
@@ -180,6 +180,9 @@ include '../includes/header.php';
 
                 <!-- Incluir modal para ver detalles de la categoría -->
                 <?php include 'templates/view_category_modal.php'; ?>
+
+                <!-- Incluir selector de iconos -->
+                <?php include '../includes/icon_picker.php'; ?>
             </main>
         </div>
     </div>
@@ -313,11 +316,12 @@ $(document).ready(function() {
             {
                 data: "nombre",
                 render: function(data, type, row) {
+                    const iconClass = row.icono || "fas fa-folder";
                     const iconType = row.tipo === "ingreso" ? "arrow-up text-success" : "arrow-down text-danger";
                     return `
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
-                                <i class="fas fa-tag text-white"></i>
+                                <i class="${iconClass} text-white"></i>
                             </div>
                             <div>
                                 <strong>${data}</strong>
@@ -554,6 +558,7 @@ $(document).ready(function() {
         const categoryData = {
             nombre: formData.get("nombre"),
             tipo: formData.get("tipo"),
+            icono: formData.get("icono") || "fas fa-folder",
             activo: formData.get("activo")
         };
         
@@ -610,6 +615,8 @@ $(document).ready(function() {
         
         // Resetear valores por defecto
         $("#addCategoryStatus").val("1");
+        $("#addCategoryIcon").val("fas fa-folder");
+        $("#addCategoryIconPreview").html("<i class=\"fas fa-folder\"></i>");
     }
     
     // Resetear formulario cuando se cierra el modal
@@ -657,6 +664,11 @@ $(document).ready(function() {
         $("#editCategoryType").val(category.tipo);
         $("#editCategoryStatus").val(category.activo ? "1" : "0");
         
+        // Actualizar campo de icono
+        const iconoActual = category.icono || "fas fa-folder";
+        $("#editCategoryIcon").val(iconoActual);
+        $("#editCategoryIconPreview").html(`<i class="${iconoActual}"></i>`);
+        
         // Limpiar validaciones previas
         $("#editCategoryForm").removeClass("was-validated");
         $("#editCategoryForm .form-control").removeClass("is-invalid is-valid");
@@ -685,6 +697,7 @@ $(document).ready(function() {
         const categoryData = {
             nombre: formData.get("nombre"),
             tipo: formData.get("tipo"),
+            icono: formData.get("icono") || "fas fa-folder",
             activo: formData.get("activo")
         };
         
@@ -742,6 +755,10 @@ $(document).ready(function() {
         form.classList.remove("was-validated");
         $("#editCategoryForm .form-control").removeClass("is-invalid is-valid");
         $("#editCategoryForm .form-select").removeClass("is-invalid is-valid");
+        
+        // Resetear icono por defecto
+        $("#editCategoryIcon").val("fas fa-folder");
+        $("#editCategoryIconPreview").html("<i class=\"fas fa-folder\"></i>");
     }
     
     // Resetear formulario cuando se cierra el modal de edición
@@ -854,7 +871,8 @@ $(document).ready(function() {
         // Enviar petición de eliminación
         $.ajax({
             url: `controllers/controller.php?action=delete&id=${categoryId}`,
-            type: "DELETE",
+            type: "POST",
+            data: {_method: "DELETE"},
             success: function(response) {
                 if (response.success) {
                     // Éxito - cerrar modal y recargar tabla
