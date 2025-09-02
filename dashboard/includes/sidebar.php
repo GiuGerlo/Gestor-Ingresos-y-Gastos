@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * SIDEBAR DINÁMICO DEL DASHBOARD
  * ==============================
  * Include para el sidebar que se adapta según el rol del usuario y la página actual
@@ -14,9 +14,10 @@ $current_script = basename($_SERVER['PHP_SELF'], '.php');
 $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 
 // Función para determinar si un enlace está activo
-function isActive($page, $dir = '') {
+function isActive($page, $dir = '')
+{
     global $current_script, $current_dir;
-    
+
     if ($dir) {
         return $current_dir === $dir ? 'active' : '';
     }
@@ -36,12 +37,12 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
 
 <!-- Navbar para móvil -->
 <nav class="navbar navbar-expand-md navbar-dark bg-primary d-md-none">
-    <div class="container-fluid">
+    <div class="container">
         <span class="navbar-brand">
             <?php if ($user_rol === 'superadmin'): ?>
                 👑 Panel Admin
             <?php else: ?>
-                💰 Gestor Finanzas
+                Ahorrito
             <?php endif; ?>
         </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +55,7 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
 <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
     <div class="sidebar-sticky">
         <div class="text-center mb-4 pt-3">
-            <img src="../../assets/img/logo-original.png" alt="Ahorrito Logo" style="width:48px;height:48px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;">
+            <img src="<?php echo $final_base_path; ?>../assets/img/logo-original.png" alt="Ahorrito Logo" class="logo-img" style="width:48px;height:48px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;">
             <?php if ($user_rol === 'superadmin'): ?>
                 <h5 class="text-white">Panel Admin</h5>
                 <small class="text-light">
@@ -70,7 +71,7 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
                 </small>
             <?php endif; ?>
         </div>
-        
+
         <ul class="nav flex-column">
             <!-- Navegación principal -->
             <?php if ($user_rol === 'superadmin'): ?>
@@ -81,14 +82,14 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
                         Panel Admin
                     </a>
                 </li>
-                
+
                 <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
                 <li class="nav-item">
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-light">
                         <span>Gestión del Sistema</span>
                     </h6>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link text-light <?php echo isActive('index', 'usuarios'); ?>" href="<?php echo $final_base_path; ?>usuarios/">
                         <i class="fas fa-users me-2"></i>
@@ -110,14 +111,14 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
                         <span class="badge bg-warning ms-auto"></span>
                     </a>
                 </li>
-                
+
                 <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
                 <li class="nav-item">
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-light">
                         <span>Vista de Usuario</span>
                     </h6>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link text-light <?php echo ($current_script === 'index' && $current_dir === 'dashboard') ? 'active' : ''; ?>" href="<?php echo $final_base_path; ?>index.php">
                         <i class="fas fa-user me-2"></i>
@@ -151,7 +152,7 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
                     </a>
                 </li>
             <?php endif; ?>
-            
+
             <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
             <li class="nav-item">
                 <a class="nav-link text-light" href="<?php echo $final_base_path; ?>../controllers/logout.php">
@@ -162,3 +163,19 @@ $final_base_path = isset($base_path) ? $base_path : $base_path_calc;
         </ul>
     </div>
 </nav>
+
+<style>
+    .logo-link {
+        text-decoration: none;
+        transition: transform 0.3s ease;
+    }
+
+    .logo-img {
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .logo-link:hover .logo-img {
+        transform: scale(1.1);
+        filter: brightness(1.2);
+    }
+</style>
