@@ -397,17 +397,17 @@ include 'includes/header.php';
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!-- <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
                             <label class="form-check-label text-muted" for="remember_me">
                                 Recordarme
                             </label>
                         </div>
-                        <!-- <a href="#" class="text-decoration-none" onclick="mostrarAyuda()">
+                        <a href="#" class="text-decoration-none" onclick="mostrarAyuda()">
                             <small>¿Olvidaste tu contraseña?</small>
-                        </a> -->
-                    </div>
+                        </a>
+                    </div> -->
 
                     <button type="submit" class="btn btn-login w-100 mb-4" id="loginBtn">
                         <i class="fas fa-sign-in-alt me-2"></i>
