@@ -7,7 +7,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
             $user_id = $_SESSION['user_id'];
             $ano_actual = date('Y');
             $mes_actual = date('n');
-            
+
             // Ingresos del mes actual
             $stmt = $pdo->prepare("
                 SELECT COALESCE(SUM(monto), 0) as total_ingresos
@@ -65,41 +65,41 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
 }
 ?>
 
-    <!-- Footer -->
-    <footer class="bg-white border-top mt-5">
-        <div class="container-fluid">
-            <div class="row py-4">
-                <!-- Información del sistema -->
-                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="icon-wrapper me-2" style="background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));">
-                            <i class="fas fa-chart-line text-white"></i>
-                        </div>
-                        <h5 class="mb-0 fw-bold">
-                            <span class="text-dark">Ahorritoo</span>
-                        </h5>
+<!-- Footer -->
+<footer class="bg-white border-top mt-5">
+    <div class="container-fluid">
+        <div class="row py-4">
+            <!-- Información del sistema -->
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-wrapper me-2" style="background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));">
+                        <i class="fas fa-chart-line text-white"></i>
                     </div>
-                    <p class="text-muted mb-3">
-                        Sistema integral de gestión de finanzas personales. 
-                        Controla tus ingresos, gastos y gastos fijos de manera eficiente y profesional.
-                    </p>
-                    <div class="text-muted">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
-                            <small>Argentina - Zona Horaria UTC-3</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-calendar me-2 text-secondary"></i>
-                            <small>Última actualización: <span id="last-update-time"><?= date('d/m/Y H:i') ?></span></small>
-                        </div>
+                    <h5 class="mb-0 fw-bold">
+                        <span class="text-dark">Ahorritoo</span>
+                    </h5>
+                </div>
+                <p class="text-muted mb-3">
+                    Sistema integral de gestión de finanzas personales.
+                    Controla tus ingresos, gastos y gastos fijos de manera eficiente y profesional.
+                </p>
+                <div class="text-muted">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+                        <small>Argentina - Zona Horaria UTC-3</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar me-2 text-secondary"></i>
+                        <small>Última actualización: <span id="last-update-time"><?= date('d/m/Y H:i') ?></span></small>
                     </div>
                 </div>
-                
-                <!-- Enlaces rápidos -->
-                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="fw-bold text-dark mb-3">Navegación</h6>
-                    <ul class="list-unstyled">
-                        <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php' && basename($_SERVER['PHP_SELF']) !== 'register.php'): ?>
+            </div>
+
+            <!-- Enlaces rápidos -->
+            <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                <h6 class="fw-bold text-dark mb-3">Navegación</h6>
+                <ul class="list-unstyled">
+                    <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php' && basename($_SERVER['PHP_SELF']) !== 'register.php'): ?>
                         <li class="mb-2">
                             <a href="<?= $base_path ?>dashboard/" class="footer-link">
                                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
@@ -125,7 +125,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                                 <i class="fas fa-chart-bar me-2"></i>Reportes
                             </a>
                         </li>
-                        <?php else: ?>
+                    <?php else: ?>
                         <li class="mb-2">
                             <a href="index.php" class="footer-link">
                                 <i class="fas fa-star me-2"></i>Login
@@ -142,12 +142,12 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                                 <i class="fas fa-user-plus me-2"></i>Registrarse
                             </a>
                         </li> -->
-                        <?php endif; ?>
-                    </ul>
-                </div>
-                
-                <!-- Estadísticas del usuario -->
-                <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php' && basename($_SERVER['PHP_SELF']) !== 'register.php' && isset($footer_stats)): ?>
+                    <?php endif; ?>
+                </ul>
+            </div>
+
+            <!-- Estadísticas del usuario -->
+            <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php' && basename($_SERVER['PHP_SELF']) !== 'register.php' && isset($footer_stats)): ?>
                 <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
                     <h6 class="fw-bold text-dark mb-3">Tu Estado Financiero</h6>
                     <div class="row g-2">
@@ -187,7 +187,7 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                         </div>
                     </div>
                 </div>
-                <?php else: ?>
+            <?php else: ?>
                 <!-- Información para páginas públicas -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
                     <h6 class="fw-bold text-dark mb-3">Características</h6>
@@ -210,192 +210,197 @@ if (!isset($footer_stats) && basename($_SERVER['PHP_SELF']) !== 'index.php' && b
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
-                
-                <!-- Información de contacto y versión -->
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold text-dark mb-3">Información del Sistema</h6>
-                    <div class="text-muted">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-code me-2 text-secondary"></i>
-                            <small>Versión: 1.0.0</small>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-calendar me-2 text-secondary"></i>
-                            <small>Año: <?= date('Y') ?></small>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-shield-alt me-2 text-secondary"></i>
-                            <small>Seguro y confiable</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-mobile-alt me-2 text-secondary"></i>
-                            <small>Responsive Design</small>
-                        </div>
+            <?php endif; ?>
+
+            <!-- Información de contacto y versión -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="fw-bold text-dark mb-3">Información del Sistema</h6>
+                <div class="text-muted">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-code me-2 text-secondary"></i>
+                        <small>Versión: 1.0.0</small>
                     </div>
-                    
-                    <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'superadmin'): ?>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-calendar me-2 text-secondary"></i>
+                        <small>Año: <?= date('Y') ?></small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-shield-alt me-2 text-secondary"></i>
+                        <small>Seguro y confiable</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-mobile-alt me-2 text-secondary"></i>
+                        <small>Responsive Design</small>
+                    </div>
+                </div>
+
+                <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'superadmin'): ?>
                     <div class="mt-3 p-2 rounded" style="background: rgba(255, 193, 7, 0.1);">
                         <small class="text-warning">
                             <i class="fas fa-crown me-1"></i>
                             Modo Administrador
                         </small>
                     </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <!-- Copyright -->
-            <div class="row border-top pt-3 pb-2">
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        © <?= date('Y') ?> Ahorritoo. Sistema desarrollado con dedicación.
-                    </small>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <small class="text-muted">
-                        <span class="text-success">
-                            <i class="fas fa-circle me-1" style="font-size: 6px;"></i>
-                            Online
-                        </span>
-                        <span class="ms-3">
-                            <i class="fas fa-clock me-1"></i>
-                            Hora: <span id="current-time"><?= date('H:i') ?></span>
-                        </span>
-                    </small>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
-    </footer>
 
-    <!-- CSS adicional para efectos del footer -->
-    <style>
-        .footer-link {
-            transition: var(--transition-fast);
+        <!-- Copyright -->
+        <div class="row border-top pt-3 pb-2">
+            <div class="col-md-6">
+                <small class="text-muted">
+                    © <?= date('Y') ?> Ahorritoo. Sistema desarrollado con dedicación.
+                </small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <small class="text-muted">
+                    <span class="text-success">
+                        <i class="fas fa-circle me-1" style="font-size: 6px;"></i>
+                        Online
+                    </span>
+                    <span class="ms-3">
+                        <i class="fas fa-clock me-1"></i>
+                        Hora: <span id="current-time"><?= date('H:i') ?></span>
+                    </span>
+                </small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- CSS adicional para efectos del footer -->
+<style>
+    .footer-link {
+        transition: var(--transition-fast);
+    }
+
+    .footer-link:hover {
+        color: var(--secondary-color) !important;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+
+    footer {
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+
+        footer .col-lg-4,
+        footer .col-lg-2,
+        footer .col-lg-3 {
+            text-align: center;
+            margin-bottom: 2rem;
         }
-        
-        .footer-link:hover {
-            color: var(--secondary-color) !important;
-            text-decoration: none;
-            transform: translateX(5px);
+
+        footer .d-flex {
+            justify-content: center;
         }
-        
-        footer {
-            margin-top: auto;
-        }
-        
-        @media (max-width: 768px) {
-            footer .col-lg-4,
-            footer .col-lg-2,
-            footer .col-lg-3 {
-                text-align: center;
-                margin-bottom: 2rem;
-            }
-            
-            footer .d-flex {
-                justify-content: center;
-            }
-        }
-    </style>
-    
-    <!-- Scripts de Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- DataTables JS (solo si es necesario) -->
-    <?php if (isset($include_datatables) && $include_datatables): ?>
+    }
+</style>
+
+<!-- Scripts de Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- DataTables JS (solo si es necesario) -->
+<?php if (isset($include_datatables) && $include_datatables): ?>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <?php endif; ?>
-    
-    <!-- Scripts personalizados -->
-    <script src="<?= $base_path ?>assets/js/main.js"></script>
-    
-    <!-- Scripts adicionales específicos de página -->
-    <?php if(isset($additional_js)): ?>
-        <?= $additional_js ?>
-    <?php endif; ?>
-    
-    <!-- Script para funcionalidades generales del footer -->
-    <script>
-        // Actualizar la hora cada minuto
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleString('es-AR', {
-                timeZone: 'America/Argentina/Buenos_Aires',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const timeElement = document.getElementById('current-time');
-            if (timeElement) {
-                timeElement.textContent = timeString;
-            }
-            
-            // También actualizar el último tiempo de actualización
-            const lastUpdateElement = document.getElementById('last-update-time');
-            if (lastUpdateElement) {
-                const updateString = now.toLocaleString('es-AR', {
-                    timeZone: 'America/Argentina/Buenos_Aires',
-                    day: '2-digit',
-                    month: '2-digit', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                lastUpdateElement.textContent = updateString;
-            }
-        }
-        
-        // Actualizar inmediatamente y luego cada minuto
-        updateTime();
-        setInterval(updateTime, 60000);
-        
-        // Cerrar alerts automáticamente después de 5 segundos
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert-dismissible');
-            alerts.forEach(function(alert) {
-                setTimeout(function() {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    if (bsAlert) {
-                        bsAlert.close();
-                    }
-                }, 5000);
-            });
+<?php endif; ?>
+
+<!-- Scripts personalizados -->
+<script src="<?= $base_path ?>assets/js/main.js"></script>
+
+<!-- Scripts adicionales específicos de página -->
+<?php if (isset($additional_js)): ?>
+    <?= $additional_js ?>
+<?php endif; ?>
+
+<!-- Script para funcionalidades generales del footer -->
+<script>
+    // Actualizar la hora cada minuto
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            hour: '2-digit',
+            minute: '2-digit'
         });
-        
-        // Confirmar acciones de eliminación
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('[data-action="delete"]');
-            deleteButtons.forEach(function(button) {
-                button.addEventListener('click', function(e) {
-                    if (!confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-                        e.preventDefault();
-                    }
-                });
-            });
-        });
-        
-        // Función para formatear números con separador de miles argentino
-        function formatearMoneda(numero) {
-            return new Intl.NumberFormat('es-AR', {
-                style: 'currency',
-                currency: 'ARS',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(numero);
+
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.textContent = timeString;
         }
-        
-        // Función para formatear fechas en formato argentino
-        function formatearFecha(fecha) {
-            return new Date(fecha).toLocaleDateString('es-AR', {
+
+        // También actualizar el último tiempo de actualización
+        const lastUpdateElement = document.getElementById('last-update-time');
+        if (lastUpdateElement) {
+            const updateString = now.toLocaleString('es-AR', {
                 timeZone: 'America/Argentina/Buenos_Aires',
                 day: '2-digit',
                 month: '2-digit',
-                year: 'numeric'
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
+            lastUpdateElement.textContent = updateString;
         }
-    </script>
+    }
+
+    // Actualizar inmediatamente y luego cada minuto
+    updateTime();
+    setInterval(updateTime, 60000);
+
+    // Cerrar alerts automáticamente después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-dismissible');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                if (bsAlert) {
+                    bsAlert.close();
+                }
+            }, 5000);
+        });
+    });
+
+    // Confirmar acciones de eliminación
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('[data-action="delete"]');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                if (!confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+
+    // Función para formatear números con separador de miles argentino
+    function formatearMoneda(numero) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(numero);
+    }
+
+    // Función para formatear fechas en formato argentino
+    function formatearFecha(fecha) {
+        return new Date(fecha).toLocaleDateString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+</script>
 </body>
+
 </html>

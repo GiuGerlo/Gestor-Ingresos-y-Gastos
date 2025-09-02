@@ -163,6 +163,16 @@ $additional_css = '
         backdrop-filter: blur(5px);
     }
     
+    .btn-login:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .form-control:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(101, 72, 213, 0.15);
+    }
+    
     .password-toggle {
         position: absolute;
         right: 15px;
@@ -173,11 +183,42 @@ $additional_css = '
         color: var(--gray-600);
         cursor: pointer;
         z-index: 5;
-        padding: 0.25rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
     }
     
     .password-toggle:hover {
         color: var(--secondary-color);
+        background: rgba(101, 72, 213, 0.1);
+    }
+    
+    .password-toggle:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(101, 72, 213, 0.2);
+        background: rgba(101, 72, 213, 0.1);
+    }
+    
+    .password-toggle:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+    
+    /* Asegurar que el botón sea accesible en móviles */
+    @media (max-width: 768px) {
+        .password-toggle {
+            width: 35px;
+            height: 35px;
+            right: 10px;
+        }
+        
+        .form-control.pe-5 {
+            padding-right: 3rem !important;
+        }
     }
     
     @media (max-width: 768px) {
@@ -243,13 +284,13 @@ include 'includes/header.php';
                 <div class="login-logo">
                     <img src="assets/img/logo-original.png" alt="Logo" style="width:100px;height:100px;object-fit:contain;border-radius:16px;background:rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:8px;">
                 </div>
-                
+
                 <h2 class="fw-bold mb-3">Ahorritoo</h2>
                 <p class="mb-4 text-center">
-                    Sistema integral de gestión financiera personal. 
+                    Sistema integral de gestión financiera personal.
                     Controla tus ingresos, gastos y planifica tu futuro económico.
                 </p>
-                
+
                 <div class="w-100">
                     <div class="feature-item">
                         <div class="feature-icon">
@@ -260,7 +301,7 @@ include 'includes/header.php';
                             <small>Registra y categoriza todos tus ingresos</small>
                         </div>
                     </div>
-                    
+
                     <div class="feature-item">
                         <div class="feature-icon">
                             <i class="fas fa-minus-circle"></i>
@@ -270,7 +311,7 @@ include 'includes/header.php';
                             <small>Monitorea y controla tus gastos diarios</small>
                         </div>
                     </div>
-                    
+
                     <div class="feature-item">
                         <div class="feature-icon">
                             <i class="fas fa-calendar-check"></i>
@@ -280,7 +321,7 @@ include 'includes/header.php';
                             <small>Programa y recibe alertas de pagos recurrentes</small>
                         </div>
                     </div>
-                    
+
                     <div class="feature-item">
                         <div class="feature-icon">
                             <i class="fas fa-chart-bar"></i>
@@ -291,8 +332,8 @@ include 'includes/header.php';
                         </div>
                     </div>
                 </div>
-                
-                <div class="stats-grid">
+
+                <!-- <div class="stats-grid">
                     <div class="stat-item">
                         <span class="stat-number">100%</span>
                         <span class="stat-label">Gratis</span>
@@ -309,64 +350,53 @@ include 'includes/header.php';
                         <span class="stat-number">📱</span>
                         <span class="stat-label">Responsive</span>
                     </div>
-                </div>
+                </div> -->
             </div>
-            
+
             <!-- Panel derecho - Formulario de login -->
             <div class="col-lg-7 login-right">
                 <div class="text-center mb-4">
                     <h3 class="fw-bold text-dark mb-2">¡Bienvenido!</h3>
                     <p class="text-muted">Ingresa tus credenciales para acceder al sistema</p>
                 </div>
-                
+
                 <!-- Mensaje de logout -->
                 <?php echo $logout_message; ?>
-                
+
                 <!-- Formulario de login -->
-                <form method="POST" id="loginForm" class="needs-validation" novalidate>
+                <form method="POST" id="loginForm" novalidate>
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating mb-3">
-                                <input type="email" 
-                                       class="form-control" 
-                                       id="email" 
-                                       name="email" 
-                                       placeholder="tu@email.com"
-                                       required
-                                       autocomplete="email"
-                                       value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
+                                <input type="email"
+                                    class="form-control"
+                                    id="email"
+                                    name="email"
+                                    placeholder="tu@email.com"
+                                    value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
                                 <label for="email">
                                     <i class="fas fa-envelope me-2"></i>Correo Electrónico
                                 </label>
-                                <div class="invalid-feedback">
-                                    Por favor ingresa un email válido
-                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-12">
                             <div class="form-floating mb-3 position-relative">
-                                <input type="password" 
-                                       class="form-control" 
-                                       id="password" 
-                                       name="password" 
-                                       placeholder="Contraseña"
-                                       required
-                                       autocomplete="current-password"
-                                       minlength="6">
+                                <input type="password"
+                                    class="form-control pe-5"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Contraseña">
                                 <label for="password">
                                     <i class="fas fa-lock me-2"></i>Contraseña
                                 </label>
-                                <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <button type="button" class="password-toggle" onclick="togglePassword()" title="Mostrar/Ocultar contraseña">
                                     <i class="fas fa-eye" id="passwordIcon"></i>
                                 </button>
-                                <div class="invalid-feedback">
-                                    La contraseña debe tener al menos 6 caracteres
-                                </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
@@ -378,13 +408,13 @@ include 'includes/header.php';
                             <small>¿Olvidaste tu contraseña?</small>
                         </a> -->
                     </div>
-                    
-                    <button type="submit" class="btn btn-login w-100 mb-4">
+
+                    <button type="submit" class="btn btn-login w-100 mb-4" id="loginBtn">
                         <i class="fas fa-sign-in-alt me-2"></i>
-                        Iniciar Sesión
+                        <span id="btnText">Iniciar Sesión</span>
                     </button>
                 </form>
-                
+
                 <!-- Información adicional -->
                 <div class="text-center">
                     <hr class="my-4">
@@ -394,7 +424,7 @@ include 'includes/header.php';
                             Conexión segura y datos protegidos
                         </small>
                     </p>
-                    
+
                     <!-- Credenciales de prueba -->
                     <!-- <div class="alert alert-info">
                         <strong><i class="fas fa-info-circle me-2"></i>Credenciales de prueba:</strong><br>
@@ -403,7 +433,7 @@ include 'includes/header.php';
                             <strong>Usuario:</strong> Crear cuenta nueva con el registro
                         </small>
                     </div> -->
-                    
+
                     <!-- <p class="text-muted">
                         ¿No tienes cuenta? 
                         <a href="register.php" class="text-decoration-none fw-medium">
@@ -417,189 +447,205 @@ include 'includes/header.php';
 </div>
 
 <script>
-// Validación del formulario
-(function() {
-    'use strict';
-    
-    const forms = document.querySelectorAll('.needs-validation');
-    
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            form.classList.add('was-validated');
-        }, false);
-    });
-})();
+    // Función para mostrar/ocultar contraseña
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
+        const toggleBtn = document.querySelector('.password-toggle');
 
-// Función para mostrar/ocultar contraseña
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const passwordIcon = document.getElementById('passwordIcon');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        passwordIcon.classList.remove('fa-eye');
-        passwordIcon.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        passwordIcon.classList.remove('fa-eye-slash');
-        passwordIcon.classList.add('fa-eye');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('fa-eye');
+            passwordIcon.classList.add('fa-eye-slash');
+            toggleBtn.title = 'Ocultar contraseña';
+
+            // Feedback visual
+            toggleBtn.style.color = 'var(--secondary-color)';
+            setTimeout(() => {
+                toggleBtn.style.color = '';
+            }, 200);
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('fa-eye-slash');
+            passwordIcon.classList.add('fa-eye');
+            toggleBtn.title = 'Mostrar contraseña';
+
+            // Feedback visual
+            toggleBtn.style.color = 'var(--gray-600)';
+            setTimeout(() => {
+                toggleBtn.style.color = '';
+            }, 200);
+        }
     }
-}
 
-// Función para mostrar ayuda
-function mostrarAyuda() {
-    alert('Para recuperar tu contraseña, contacta al administrador del sistema.\n\nO utiliza las credenciales de prueba mostradas en la pantalla.');
-}
+    // Función para mostrar alertas con SweetAlert2
+    function showAlert(type, title, message, timer = null) {
+        const alertConfig = {
+            title: title,
+            text: message,
+            icon: type,
+            confirmButtonColor: type === 'success' ? '#28a745' : '#dc3545',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        };
 
-// Auto-completar credenciales para desarrollo
-document.addEventListener('DOMContentLoaded', function() {
-    // Enfocar en el campo email al cargar
-    document.getElementById('email').focus();
-    
-    // Detectar parámetros de URL para autocompletado
-    const urlParams = new URLSearchParams(window.location.search);
-    const tipo = urlParams.get('tipo');
-    
-    if (tipo === 'admin') {
-        document.getElementById('email').value = 'admin@gestorfinanzas.com';
-        document.getElementById('password').focus();
+        if (timer) {
+            alertConfig.timer = timer;
+            alertConfig.timerProgressBar = true;
+        }
+
+        return Swal.fire(alertConfig);
     }
-    
-    // Manejar envío del formulario via AJAX
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Mostrar spinner de carga
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando sesión...';
-            submitBtn.disabled = true;
-            
-            // Preparar datos del formulario
-            const formData = new FormData(this);
-            
-            // Enviar petición AJAX
-            fetch('controllers/login_user.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+
+    // Función para validar el formulario
+    function validateForm() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        // Validar email
+        if (!email) {
+            showAlert('warning', 'Campo requerido', 'Por favor ingresa tu correo electrónico');
+            document.getElementById('email').focus();
+            return false;
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showAlert('warning', 'Email inválido', 'Por favor ingresa un correo electrónico válido');
+            document.getElementById('email').focus();
+            return false;
+        }
+
+        // Validar contraseña
+        if (!password) {
+            showAlert('warning', 'Campo requerido', 'Por favor ingresa tu contraseña');
+            document.getElementById('password').focus();
+            return false;
+        }
+
+        if (password.length < 6) {
+            showAlert('warning', 'Contraseña muy corta', 'La contraseña debe tener al menos 6 caracteres');
+            document.getElementById('password').focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Auto-completar credenciales para desarrollo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Enfocar en el campo email al cargar
+        document.getElementById('email').focus();
+
+        // Detectar parámetros de URL para autocompletado
+        const urlParams = new URLSearchParams(window.location.search);
+        const tipo = urlParams.get('tipo');
+
+        if (tipo === 'admin') {
+            document.getElementById('email').value = 'admin@gestorfinanzas.com';
+            document.getElementById('password').focus();
+        }
+
+        // Manejar envío del formulario via AJAX
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validar formulario antes de enviar
+                if (!validateForm()) {
+                    return;
                 }
-                
-                return response.text(); // Primero obtenemos como texto para debug
-            })
-            .then(text => {
-                console.log('Raw response:', text);
-                
-                try {
-                    const data = JSON.parse(text);
-                    console.log('Parsed data:', data);
-                    
-                    if (data.success) {
-                        // Login exitoso
-                        showAlert('success', data.message);
-                        
-                        // Redirigir después de un breve delay
-                        setTimeout(() => {
-                            window.location.href = data.data.redirect;
-                        }, 1500);
-                    } else {
-                        // Login fallido
-                        showAlert('error', data.message);
-                        
+
+                const submitBtn = document.getElementById('loginBtn');
+                const btnText = document.getElementById('btnText');
+                const originalText = btnText.innerHTML;
+
+                // Mostrar spinner de carga
+                btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando sesión...';
+                submitBtn.disabled = true;
+
+                // Preparar datos del formulario
+                const formData = new FormData(this);
+
+                // Enviar petición AJAX
+                fetch('controllers/login_user.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        return response.text(); // Primero obtenemos como texto para debug
+                    })
+                    .then(text => {
+                        console.log('Raw response:', text);
+
+                        try {
+                            const data = JSON.parse(text);
+                            console.log('Parsed data:', data);
+
+                            if (data.success) {
+                                // Login exitoso
+                                showAlert('success', '¡Bienvenido!', data.message, 1500).then(() => {
+                                    // Redirigir después de la alerta
+                                    window.location.href = data.data.redirect;
+                                });
+                            } else {
+                                // Login fallido
+                                showAlert('error', 'Error de acceso', data.message);
+
+                                // Restaurar botón
+                                btnText.innerHTML = originalText;
+                                submitBtn.disabled = false;
+
+                                // Enfocar en campo de contraseña si hay error
+                                document.getElementById('password').focus();
+                                document.getElementById('password').select();
+                            }
+                        } catch (parseError) {
+                            console.error('JSON Parse Error:', parseError);
+                            console.error('Raw text was:', text);
+                            showAlert('error', 'Error del servidor', 'Error de formato en la respuesta del servidor.');
+
+                            // Restaurar botón
+                            btnText.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('error', 'Error de conexión', 'Error de conexión. Intenta nuevamente.');
+
                         // Restaurar botón
-                        submitBtn.innerHTML = originalText;
+                        btnText.innerHTML = originalText;
                         submitBtn.disabled = false;
-                        
-                        // Enfocar en campo de contraseña si hay error
-                        document.getElementById('password').focus();
-                        document.getElementById('password').select();
-                    }
-                } catch (parseError) {
-                    console.error('JSON Parse Error:', parseError);
-                    console.error('Raw text was:', text);
-                    showAlert('error', 'Error de formato en la respuesta del servidor.');
-                    
-                    // Restaurar botón
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('error', 'Error de conexión. Intenta nuevamente.');
-                
-                // Restaurar botón
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                    });
             });
-        });
-    }
-});
+        }
+    });
 
-// Función para mostrar alertas
-function showAlert(type, message) {
-    console.log('Showing alert:', type, message);
-    
-    // Remover alertas existentes
-    const existingAlerts = document.querySelectorAll('.alert-notification');
-    existingAlerts.forEach(alert => alert.remove());
-    
-    // Crear nueva alerta
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible alert-notification fade show`;
-    alertDiv.style.marginBottom = '1rem';
-    alertDiv.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    // Insertar antes del formulario
-    const container = document.querySelector('.card-body');
-    const form = document.getElementById('loginForm');
-    if (container && form) {
-        container.insertBefore(alertDiv, form);
-    } else {
-        // Fallback: insertar al principio del body
-        document.body.insertBefore(alertDiv, document.body.firstChild);
-    }
-    
-    // Auto-remover después de 5 segundos si es error
-    if (type === 'error') {
-        setTimeout(() => {
-            if (alertDiv && alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
-    }
-}
+    // Manejar Enter en los campos
+    document.getElementById('email').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('password').focus();
+        }
+    });
 
-// Manejar Enter en los campos
-document.getElementById('email').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('password').focus();
-    }
-});
-
-document.getElementById('password').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        document.querySelector('form').submit();
-    }
-});
+    document.getElementById('password').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+    });
 </script>
 
 <?php include 'includes/footer.php'; ?>
